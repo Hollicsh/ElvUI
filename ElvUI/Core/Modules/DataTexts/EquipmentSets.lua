@@ -18,7 +18,7 @@ local displayString, db = ''
 local function OnEnter()
 	DT.tooltip:ClearLines()
 
-	DT.tooltip:AddLine('Equipment Sets')
+	DT.tooltip:AddLine(L["Equipment Sets"])
 	DT.tooltip:AddLine(' ')
 
 	for _, set in pairs(eqSets) do
@@ -53,12 +53,12 @@ local function OnEvent(self, event)
 
 	local set = eqSets[activeSetIndex]
 	if not activeSetIndex then
-		self.text:SetText('No Set Equipped')
+		self.text:SetText(L["No Set Equipped"])
 	elseif set then
 		if db.NoLabel then
 			self.text:SetFormattedText(displayString, '', set.name, not db.NoIcon and set.iconFileID or '')
 		else
-			self.text:SetFormattedText(displayString, db.Label ~= '' and db.Label or 'Set: ', set.name, not db.NoIcon and set.iconFileID or '')
+			self.text:SetFormattedText(displayString, db.Label ~= '' and db.Label or L["Set:"], set.name, not db.NoIcon and set.iconFileID or '')
 		end
 	end
 end
@@ -71,4 +71,4 @@ local function ApplySettings(self, hex)
 	displayString = strjoin('', '%s', hex, '%s|r', not db.NoIcon and ' |T%s:16:16:0:0:64:64:4:60:4:60|t' or '')
 end
 
-DT:RegisterDatatext('Equipment Sets', nil, { 'EQUIPMENT_SETS_CHANGED', 'PLAYER_EQUIPMENT_CHANGED', 'EQUIPMENT_SWAP_FINISHED' }, OnEvent, nil, OnClick, OnEnter, nil, nil, nil, ApplySettings)
+DT:RegisterDatatext('Equipment Sets', nil, { 'EQUIPMENT_SETS_CHANGED', 'PLAYER_EQUIPMENT_CHANGED', 'EQUIPMENT_SWAP_FINISHED' }, OnEvent, nil, OnClick, OnEnter, nil, L["Equipment Sets"], nil, ApplySettings)

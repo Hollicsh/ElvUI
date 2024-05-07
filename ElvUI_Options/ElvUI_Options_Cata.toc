@@ -1,5 +1,7 @@
 ## Title: |cff1784d1ElvUI|r |cfd9b9b9bOptions|r
+## Title-ruRU: |cfd9b9b9bНастройки|r |cff1784d1ElvUI|r
 ## Notes: Powers the configuration window.|n|cffff3333Does not store any profile data.|r
+## Notes-ruRU: Панель управления настройками |cff1784d1ElvUI|r.|n|cffff3333Не сохраняет данные профиля.|r
 ## Author: Elv, Simpy
 ## Version: @project-version@
 ## Interface: 40400

@@ -1,5 +1,7 @@
 ## Title: |cff1784d1ElvUI|r
+## Title-ruRU: |cff1784d1ElvUI|r |cfd9b9b9bАктуальный (10.2.7)|r
 ## Notes: User Interface Replacement
+## Notes-ruRU: Полная замена пользовательского интерфейса
 ## Author: Elv, Simpy
 ## Version: @project-version@
 ## SavedVariables: ElvDB, ElvPrivateDB

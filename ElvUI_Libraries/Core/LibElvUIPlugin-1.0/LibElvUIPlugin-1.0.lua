@@ -3,33 +3,6 @@ local lib = _G.LibStub:NewLibrary(MAJOR, MINOR)
 if not lib then return end
 -- GLOBALS: ElvUI
 
---[[----------------------------
-Plugin Table Format:  (for reference only).
-	{
-		name		- name of the plugin
-		callback	- callback to call when ElvUI_Options is loaded
-		isLib		- plugin is a library
-		version		- version of the plugin (pulls version info from metadata, libraries can define their own)
-
-	-- After new version recieved from another user:
-		old			- plugin is old version
-		newversion	- newer version number
-	}
-
-LibElvUIPlugin API:
-	RegisterPlugin(name, callback, isLib, libVersion)
-	-- Registers a module with the given name and option callback:
-		name		- name of plugin
-		verion		- version number
-		isLib		- plugin is a library
-		libVersion	- plugin library version (optional, defaults to 1)
-
-	HookInitialize(table, function)
-	-- Posthook ElvUI Initialize function:
-		table		- addon table
-		function	- function to call after Initialize (may be a string, that exists on the addons table: table['string'])
-----------------------------]]--
-
 local tonumber, strmatch, strsub, tinsert, strtrim = tonumber, strmatch, strsub, tinsert, strtrim
 local unpack, assert, pairs, ipairs, strlen, pcall, xpcall = unpack, assert, pairs, ipairs, strlen, pcall, xpcall
 local format, wipe, type, gmatch, gsub, ceil, strfind = format, wipe, type, gmatch, gsub, ceil, strfind
@@ -74,11 +47,11 @@ if locale == "deDE" then
 	INFO_NEW = "Neuste:"
 	LIBRARY = "Bibliothek"
 elseif locale == "ruRU" then
-	MSG_OUTDATED = "Ваша версия %s %s устарела (последняя версия %s)."
-	HDR_INFORMATION = "LibElvUIPlugin-1.0.%d - загруженные плагины (зеленый означает, что у вас последняя версия, красный - устаревшая)"
+	MSG_OUTDATED = "Ваша версия %s %s устарела (актуальная версия %s)."
+	HDR_INFORMATION = "LibElvUIPlugin-1.0.%d - загруженные плагины (зеленый означает, что у Вас актуальная версия, красный - устаревшая)"
 	INFO_BY = "от"
 	INFO_VERSION = "Версия:"
-	INFO_NEW = "Последняя:"
+	INFO_NEW = "Актуальная:"
 	LIBRARY = "Библиотека"
 elseif locale == "zhCN" then
 	MSG_OUTDATED = "你的 %s %s 版本已经过期 (最新版本是 %s)。"

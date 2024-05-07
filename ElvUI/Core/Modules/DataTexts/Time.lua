@@ -321,7 +321,7 @@ local function OnEnter()
 
 	local weeklyReset = C_DateAndTime_GetSecondsUntilWeeklyReset()
 	if weeklyReset then
-		DT.tooltip:AddDoubleLine(WEEKLY_RESET, ToTime(weeklyReset), 1, 1, 1, lockoutColorNormal.r, lockoutColorNormal.g, lockoutColorNormal.b)
+		DT.tooltip:AddDoubleLine(L["Weekly Reset"], ToTime(weeklyReset), 1, 1, 1, lockoutColorNormal.r, lockoutColorNormal.g, lockoutColorNormal.b)
 	end
 
 	DT.tooltip:AddDoubleLine(db.localTime and TIMEMANAGER_TOOLTIP_REALMTIME or TIMEMANAGER_TOOLTIP_LOCALTIME, format(displayFormats[AmPm == -1 and 'eu_nocolor' or 'na_nocolor'], Hr, Min, Sec, APM[AmPm]), 1, 1, 1, lockoutColorNormal.r, lockoutColorNormal.g, lockoutColorNormal.b)
@@ -357,4 +357,4 @@ function OnUpdate(self, t)
 	self.text:SetFormattedText(displayFormats[AmPm == -1 and 'eu_color' or 'na_color'], Hr, Min, Sec, APM[AmPm])
 end
 
-DT:RegisterDatatext('Time', nil, { 'UPDATE_INSTANCE_INFO', 'LOADING_SCREEN_ENABLED' }, OnEvent, OnUpdate, OnClick, OnEnter, OnLeave, nil, nil, ApplySettings)
+DT:RegisterDatatext('Time', nil, { 'UPDATE_INSTANCE_INFO', 'LOADING_SCREEN_ENABLED' }, OnEvent, OnUpdate, OnClick, OnEnter, OnLeave, L["Time"], nil, ApplySettings)

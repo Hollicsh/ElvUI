@@ -1,5 +1,7 @@
 ## Title: |cff1784d1ElvUI|r |cfd9b9b9bLibraries|r
+## Title-ruRU: |cff1784d1ElvUI|r |cfd9b9b9bБиблиотеки|r
 ## Notes: Libraries that power ElvUI
+## Notes-ruRU: Библиотеки, поддерживающие ElvUI
 ## Author: Elv, Simpy
 ## Version: @project-version@
 ## Interface: 40400
