@@ -94,14 +94,12 @@ local function UpdateColor(element, powerType)
 	end
 end
 
-local function Update(self, event, unit, powerType, spellID)
-	if not (unit and UnitIsUnit(unit, 'player')) then return end -- verify its player
+local function Update(self, event, unit, powerType)
+	if not (powerType and unit and UnitIsUnit(unit, 'player')) then return end
 
-	if event == 'UNIT_SPELLCAST_SUCCEEDED' then
-		if spellID ~= 73981 then return end -- cata redirect update
-	elseif not ((not powerType or powerType == ClassPowerType) or (unit == 'vehicle' and powerType == 'COMBO_POINTS')) then
-		return -- normal break conditions
-	end
+	local vehicle = unit == 'vehicle' and powerType == 'COMBO_POINTS'
+	local classic = not oUF.isRetail and (powerType == 'COMBO_POINTS' or (PlayerClass == 'ROGUE' and powerType == 'ENERGY'))
+	if not (vehicle or classic or powerType == ClassPowerType) then return end
 
 	local element = self.ClassPower
 
@@ -116,7 +114,7 @@ local function Update(self, event, unit, powerType, spellID)
 
 	local cur, max, mod, oldMax, chargedPoints
 	if(event ~= 'ClassPowerDisable') then
-		local powerID = unit == 'vehicle' and SPELL_POWER_COMBO_POINTS or ClassPowerID
+		local powerID = (vehicle and SPELL_POWER_COMBO_POINTS) or ClassPowerID
 
 		max = UnitPowerMax(unit, powerID)
 		mod = UnitPowerDisplayMod(powerID)
@@ -130,7 +128,7 @@ local function Update(self, event, unit, powerType, spellID)
 		elseif oUF.isRetail and (ClassPowerType == 'SOUL_SHARDS' and GetSpecialization() == SPEC_WARLOCK_DESTRUCTION) then -- destro locks are special
 			cur = UnitPower(unit, powerID, true) / mod
 		else
-			cur = not oUF.isRetail and powerType == 'COMBO_POINTS' and GetComboPoints(unit, 'target') or UnitPower(unit, powerID)
+			cur = comboPoints and GetComboPoints(unit, 'target') or UnitPower(unit, powerID)
 		end
 
 		local numActive = cur + 0.9
@@ -267,10 +265,6 @@ do
 			self:RegisterEvent('PLAYER_TARGET_CHANGED', VisibilityPath, true)
 		end
 
-		if oUF.isCata then
-			self:RegisterEvent('UNIT_SPELLCAST_SUCCEEDED', Path)
-		end
-
 		self.ClassPower.__isEnabled = true
 
 		if (oUF.isRetail or oUF.isCata) and UnitHasVehicleUI('player') then
@@ -288,10 +282,6 @@ do
 			self:UnregisterEvent('UNIT_POWER_POINT_CHARGE', Path)
 		else
 			self:UnregisterEvent('PLAYER_TARGET_CHANGED', VisibilityPath)
-		end
-
-		if oUF.isCata then
-			self:UnregisterEvent('UNIT_SPELLCAST_SUCCEEDED', Path)
 		end
 
 		local element = self.ClassPower
