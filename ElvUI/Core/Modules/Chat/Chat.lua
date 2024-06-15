@@ -290,6 +290,7 @@ do --this can save some main file locals
 			z['Player-1168-069A1283']	= itsSimpy -- Hunter:	Arieva
 			z['Player-1168-0698394A']	= itsSimpy -- Rogue:	Buddercup
 			z['Player-1168-069A3A12']	= itsSimpy -- Paladin:	Cutepally
+			z['Player-1168-0AD0F035']	= itsSimpy -- DH:		Puddle
 			z['Player-1168-0A99F54B']	= itsSimpy -- Mage:		Cuddle
 			z['Player-1168-0ACDC528']	= itsSimpy -- Priest:	Snuggle
 			z['Player-1168-0680170F']	= itsSimpy -- DK:		Ezek
@@ -310,6 +311,7 @@ do --this can save some main file locals
 			z['Player-1168-0A395540']	= itsSimpy -- [Horde] Monk:		Imsotasty
 			z['Player-1168-0A39554F']	= itsSimpy -- [Horde] Warlock:	Imsosaucy
 			z['Player-1168-0A395551']	= itsSimpy -- [Horde] Rogue:	Imsodrippy
+			z['Player-1168-0AD0C8C9']	= itsSimpy -- [Horde] Warrior:	Imsobubbly
 			z['Player-125-0A62DE05']	= itsSimpy -- [RP] Evoker:	Lumee
 			z['Player-125-09A7F9ED']	= itsSimpy -- [RP] Warrior:	Bunne
 			z['Player-125-09A8CC43']	= itsSimpy -- [RP] Monk:	Loppie
