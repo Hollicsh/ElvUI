@@ -31,4 +31,4 @@ function S:SkinQuestTimers()
 	end)
 end
 
-S:AddCallback('SkinQuestTimers')
+S:AddCallbackForAddon('Blizzard_QuestTimer', 'SkinQuestTimers')
