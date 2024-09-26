@@ -565,7 +565,12 @@ function CH:CopyButtonOnMouseUp(btn)
 			end
 
 			ToggleFrame(menu)
-		elseif E.Retail then
+		elseif E.Retail or E.Classic then
+			if E.Classic then
+				_G.ChatFrameMenuButton:ClearAllPoints()
+				_G.ChatFrameMenuButton:SetPoint('TOPLEFT', _G.ChatFrame1.copyButton, 'TOPRIGHT')
+			end
+
 			_G.ChatFrameMenuButton:OpenMenu()
 		end
 	else
@@ -855,7 +860,7 @@ function CH:StyleChat(frame)
 			buttonFrame.Background:Hide()
 			buttonFrame.minimizeButton:Hide()
 			buttonFrame:StripTextures()
-		else
+		elseif not E.Classic then
 			buttonFrame:Kill()
 		end
 	end
@@ -2443,7 +2448,9 @@ function CH:SetupChat()
 
 	if E.Retail then
 		_G.QuickJoinToastButton:Hide()
+	end
 
+	if E.Retail or E.Classic then
 		_G.ChatFrameMenuButton:SetAlpha(0)
 		_G.ChatFrameMenuButton:EnableMouse(false)
 		_G.ChatFrameMenuButton:ClearAllPoints()
