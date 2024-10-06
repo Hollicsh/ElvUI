@@ -181,11 +181,6 @@ function S:HandleButtonHighlight(frame, r, g, b)
 	frame.highlightGradient:SetVertexColor(r, g, b, 0.3)
 end
 
-function S:HandlePointXY(frame, x, y)
-	local a, b, c, d, e = frame:GetPoint()
-	frame:SetPoint(a, b, c, x or d, y or e)
-end
-
 function S:HandleFrame(frame, setBackdrop, template, x1, y1, x2, y2)
 	assert(frame, 'doesn\'t exist!')
 
@@ -498,7 +493,7 @@ do -- WIM replaces Blizzard globals we need to rehook
 				if not button.notCheckable then
 					local text = _G[name..'NormalText']
 					if text then
-						S:HandlePointXY(text, textX or 5, textY)
+						text:PointXY(textX or 5, textY)
 					end
 
 					local uncheck = _G[name..'UnCheck']
@@ -747,38 +742,6 @@ do
 		tex:SetTexture(E.Media.Textures.ArrowUp)
 		tex:SetRotation(rad(arrowDegree[direction]))
 	end
-end
-
-function S:GrabPoint(obj, pointValue)
-	for i = 1, obj:GetNumPoints() do
-		local point, relativeTo, relativePoint, xOfs, yOfs = obj:GetPoint(i)
-		if not point then
-			break
-		elseif point == pointValue then
-			return point, relativeTo, relativePoint, xOfs, yOfs
-		end
-	end
-end
-
-function S:Nudge(obj, xAxis, yAxis, noScale, pointValue)
-	assert(obj, 'doesn\'t exist!')
-
-	xAxis = xAxis or 0
-	yAxis = yAxis or 0
-
-	local point, relativeTo, relativePoint, xOfs, yOfs
-	if type(pointValue) == 'string' then
-		point, relativeTo, relativePoint, xOfs, yOfs = S:GrabPoint(obj, pointValue)
-	end
-
-	if not point then
-		point, relativeTo, relativePoint, xOfs, yOfs = obj:GetPoint(pointValue)
-	end
-
-	local x = (noScale and xAxis) or E:Scale(xAxis)
-	local y = (noScale and yAxis) or E:Scale(yAxis)
-
-	obj:SetPoint(point, relativeTo, relativePoint, xOfs + x, yOfs + y)
 end
 
 function S:HandleButton(button, strip, isDecline, noStyle, createBackdrop, template, noGlossTex, overrideTex, frameLevel, regionsKill, regionsZero, isFilterButton, filterDirection)
