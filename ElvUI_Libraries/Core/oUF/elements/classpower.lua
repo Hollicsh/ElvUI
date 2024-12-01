@@ -258,8 +258,8 @@ end
 
 do
 	function ClassPowerEnable(self)
-		oUF:RegisterEvent(self, 'UNIT_POWER_FREQUENT', Path)
-		oUF:RegisterEvent(self, 'UNIT_MAXPOWER', Path)
+		self:RegisterEvent('UNIT_POWER_FREQUENT', Path)
+		self:RegisterEvent('UNIT_MAXPOWER', Path)
 
 		if oUF.isRetail then -- according to Blizz any class may receive this event due to specific spell auras
 			oUF:RegisterEvent(self, 'UNIT_POWER_POINT_CHARGE', Path)
@@ -277,8 +277,8 @@ do
 	end
 
 	function ClassPowerDisable(self)
-		oUF:UnregisterEvent(self, 'UNIT_POWER_FREQUENT', Path)
-		oUF:UnregisterEvent(self, 'UNIT_MAXPOWER', Path)
+		self:UnregisterEvent('UNIT_POWER_FREQUENT', Path)
+		self:UnregisterEvent('UNIT_MAXPOWER', Path)
 
 		if oUF.isRetail then
 			oUF:UnregisterEvent(self, 'UNIT_POWER_POINT_CHARGE', Path)
@@ -330,12 +330,12 @@ local function Enable(self, unit)
 		element.__max = #element
 		element.ForceUpdate = ForceUpdate
 
-		if(oUF.isRetail or oUF.isCata) and (RequireSpec or RequireSpell) then
-			oUF:RegisterEvent(self, 'PLAYER_TALENT_UPDATE', VisibilityPath, true)
+		if(RequirePower) then
+			self:RegisterEvent('UNIT_DISPLAYPOWER', VisibilityPath)
 		end
 
-		if(RequirePower) then
-			oUF:RegisterEvent(self, 'UNIT_DISPLAYPOWER', VisibilityPath)
+		if(oUF.isRetail or oUF.isCata) and (RequireSpec or RequireSpell) then
+			oUF:RegisterEvent(self, 'PLAYER_TALENT_UPDATE', VisibilityPath, true)
 		end
 
 		element.ClassPowerEnable = ClassPowerEnable
@@ -360,12 +360,13 @@ local function Disable(self)
 	if(self.ClassPower) then
 		ClassPowerDisable(self)
 
+		oUF:UnregisterEvent(self, 'SPELLS_CHANGED', Visibility)
+
+		self:UnregisterEvent('UNIT_DISPLAYPOWER', VisibilityPath)
+
 		if oUF.isRetail or oUF.isCata then
 			oUF:UnregisterEvent(self, 'PLAYER_TALENT_UPDATE', VisibilityPath)
 		end
-
-		oUF:UnregisterEvent(self, 'UNIT_DISPLAYPOWER', VisibilityPath)
-		oUF:UnregisterEvent(self, 'SPELLS_CHANGED', Visibility)
 	end
 end
 

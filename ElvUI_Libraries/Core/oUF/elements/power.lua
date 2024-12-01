@@ -360,8 +360,6 @@ local function Enable(self)
 		element.SetColorTapping = SetColorTapping
 		element.SetColorThreat = SetColorThreat
 
-		oUF:RegisterEvent(self, 'UNIT_POWER_UPDATE', Path)
-
 		if(element.colorDisconnected) then
 			oUF:RegisterEvent(self, 'UNIT_CONNECTION', ColorPath)
 		end
@@ -378,10 +376,11 @@ local function Enable(self)
 			oUF:RegisterEvent(self, 'UNIT_THREAT_LIST_UPDATE', ColorPath)
 		end
 
-		oUF:RegisterEvent(self, 'UNIT_DISPLAYPOWER', Path)
-		oUF:RegisterEvent(self, 'UNIT_MAXPOWER', Path)
-		oUF:RegisterEvent(self, 'UNIT_POWER_BAR_HIDE', Path)
-		oUF:RegisterEvent(self, 'UNIT_POWER_BAR_SHOW', Path)
+		self:RegisterEvent('UNIT_DISPLAYPOWER', Path)
+		self:RegisterEvent('UNIT_POWER_BAR_HIDE', Path)
+		self:RegisterEvent('UNIT_POWER_BAR_SHOW', Path)
+		self:RegisterEvent('UNIT_POWER_FREQUENT', Path)
+		self:RegisterEvent('UNIT_MAXPOWER', Path)
 
 		if(element:IsObjectType('StatusBar') and not element:GetStatusBarTexture()) then
 			element:SetStatusBarTexture([[Interface\TargetingFrame\UI-StatusBar]])
@@ -402,15 +401,16 @@ local function Disable(self)
 	if(element) then
 		element:Hide()
 
-		oUF:UnregisterEvent(self, 'UNIT_DISPLAYPOWER', Path)
-		oUF:UnregisterEvent(self, 'UNIT_MAXPOWER', Path)
-		oUF:UnregisterEvent(self, 'UNIT_POWER_BAR_HIDE', Path)
-		oUF:UnregisterEvent(self, 'UNIT_POWER_BAR_SHOW', Path)
-		oUF:UnregisterEvent(self, 'UNIT_POWER_UPDATE', Path)
 		oUF:UnregisterEvent(self, 'UNIT_CONNECTION', ColorPath)
 		oUF:UnregisterEvent(self, 'UNIT_FACTION', ColorPath)
 		oUF:UnregisterEvent(self, 'UNIT_FLAGS', ColorPath)
 		oUF:UnregisterEvent(self, 'UNIT_THREAT_LIST_UPDATE', ColorPath)
+
+		self:UnregisterEvent('UNIT_DISPLAYPOWER', Path)
+		self:UnregisterEvent('UNIT_POWER_BAR_HIDE', Path)
+		self:UnregisterEvent('UNIT_POWER_BAR_SHOW', Path)
+		self:UnregisterEvent('UNIT_POWER_FREQUENT', Path)
+		self:UnregisterEvent('UNIT_MAXPOWER', Path)
 	end
 end
 

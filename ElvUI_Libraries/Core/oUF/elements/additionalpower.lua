@@ -173,8 +173,8 @@ end
 local function ElementEnable(self)
 	local element = self.AdditionalPower
 
-	oUF:RegisterEvent(self, 'UNIT_POWER_UPDATE', Path)
-	oUF:RegisterEvent(self, 'UNIT_MAXPOWER', Path)
+	self:RegisterEvent('UNIT_POWER_FREQUENT', Path)
+	self:RegisterEvent('UNIT_MAXPOWER', Path)
 
 	element:Show()
 	element.__isEnabled = true
@@ -185,8 +185,8 @@ end
 local function ElementDisable(self)
 	local element = self.AdditionalPower
 
-	oUF:UnregisterEvent(self, 'UNIT_POWER_UPDATE', Path)
-	oUF:UnregisterEvent(self, 'UNIT_MAXPOWER', Path)
+	self:UnregisterEvent('UNIT_POWER_FREQUENT', Path)
+	self:UnregisterEvent('UNIT_MAXPOWER', Path)
 
 	element:Hide()
 	element.__isEnabled = false
@@ -206,7 +206,6 @@ local function Visibility(self, event, unit)
 	end
 
 	local isEnabled = element.__isEnabled
-
 	if(shouldEnable and not isEnabled) then
 		ElementEnable(self)
 
@@ -251,7 +250,7 @@ local function Enable(self, unit)
 		element.__owner = self
 		element.ForceUpdate = ForceUpdate
 
-		oUF:RegisterEvent(self, 'UNIT_DISPLAYPOWER', VisibilityPath)
+		self:RegisterEvent('UNIT_DISPLAYPOWER', VisibilityPath)
 
 		if(not element.displayPairs) then
 			element.displayPairs = CopyTable(ALT_POWER_INFO)
@@ -270,7 +269,7 @@ local function Disable(self)
 	if(element) then
 		ElementDisable(self)
 
-		oUF:UnregisterEvent(self, 'UNIT_DISPLAYPOWER', VisibilityPath)
+		self:UnregisterEvent('UNIT_DISPLAYPOWER', VisibilityPath)
 	end
 end
 
