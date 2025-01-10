@@ -1208,13 +1208,15 @@ function E:LoadAPI()
 			local MALE = _G.LOCALIZED_CLASS_NAMES_MALE
 			local FEMALE = _G.LOCALIZED_CLASS_NAMES_FEMALE
 
-			for _, info in next, E.ClassInfoByID do
-				local male, female = MALE[info.classFile], FEMALE[info.classFile]
-				for index, id in next, E.SpecByClass[info.classFile] do
+			for classFile, specData in next, E.SpecByClass do
+				local male, female = MALE[classFile], FEMALE[classFile]
+				local info = E.ClassInfoByFile[classFile]
+
+				for index, id in next, specData do
 					local data = {
 						id = id,
 						index = index,
-						classFile = info.classFile,
+						classFile = classFile,
 						className = info.className,
 						englishName = E.SpecName[id]
 					}
