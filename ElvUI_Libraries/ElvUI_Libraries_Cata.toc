@@ -4,7 +4,7 @@
 ## Notes-ruRU: Библиотеки, поддерживающие ElvUI
 ## Author: Elv, Simpy
 ## Version: @project-version@
-## Interface: 40401
+## Interface: 40402
 ## OptionalDeps: LibHealComm-4.0
 ## X-oUF: ElvUF
 
