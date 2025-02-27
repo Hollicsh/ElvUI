@@ -378,6 +378,7 @@ function S:LookingForGroupFrames()
 	S:HandleButton(LFGListFrame.CategorySelection.FindGroupButton)
 	LFGListFrame.CategorySelection.FindGroupButton:ClearAllPoints()
 	LFGListFrame.CategorySelection.FindGroupButton:Point('BOTTOMRIGHT', -6, 3)
+	
 
 	local EntryCreation = LFGListFrame.EntryCreation
 	EntryCreation.Inset:StripTextures()
@@ -432,6 +433,31 @@ function S:LookingForGroupFrames()
 	S:HandleEditBox(LFGListFrame.SearchPanel.SearchBox)
 	S:HandleButton(LFGListFrame.SearchPanel.BackButton)
 	S:HandleButton(LFGListFrame.SearchPanel.SignUpButton)
+
+	local dumbbutton = LFGListFrame.SearchPanel.ScrollBox.StartGroupButton
+	local fu = CreateFrame("Frame", "DumbButton", E.UIParent)
+	fu:SetFrameLevel(10)
+	fu:SetFrameStrata("HIGH")
+	fu:Size(135,22)
+	fu:SetTemplate()
+	fu:SetPoint(dumbbutton:GetPoint())
+	fu.biatch = fu:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+	fu.biatch:SetPoint("CENTER")
+	fu.biatch:FontTemplate()
+	fu.biatch:SetText(_G.START_A_GROUP)
+	fu:Hide()
+
+	dumbbutton:HookScript("OnHide", function()
+		fu:Hide()
+	end)
+	dumbbutton:HookScript("OnShow", function()
+		fu:ClearAllPoints()
+		fu:SetPoint(dumbbutton:GetPoint())		
+		fu:Show()
+	end)
+
+
+
 	LFGListFrame.SearchPanel.BackButton:ClearAllPoints()
 	LFGListFrame.SearchPanel.BackButton:Point('BOTTOMLEFT', -1, 3)
 	LFGListFrame.SearchPanel.SignUpButton:ClearAllPoints()
