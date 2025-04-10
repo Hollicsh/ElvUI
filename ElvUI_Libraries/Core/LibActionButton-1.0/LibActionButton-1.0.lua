@@ -1,7 +1,7 @@
 -- License: LICENSE.txt
 
 local MAJOR_VERSION = "LibActionButton-1.0-ElvUI"
-local MINOR_VERSION = 61 -- the real minor version is 119
+local MINOR_VERSION = 62 -- the real minor version is 121
 
 local LibStub = LibStub
 if not LibStub then error(MAJOR_VERSION .. " requires LibStub.") end
@@ -47,6 +47,9 @@ end
 
 -- local WoWClassicHC = IsHardcoreActive and IsHardcoreActive()
 -- local WoWClassicSOD = IsEngravingEnabled and IsEngravingEnabled()
+
+-- Enable custom flyouts
+local UseCustomFlyout = FlyoutButtonMixin and not ActionButton_UpdateFlyout
 
 local KeyBound = LibStub("LibKeyBound-1.0", true)
 local CBH = LibStub("CallbackHandler-1.0")
@@ -333,10 +336,10 @@ function lib:CreateButton(id, name, header, config)
 	button:UpdateAction()
 	UpdateHotkeys(button)
 
-	-- nil out inherited functions from the flyout mixin, we override these in a metatable
-	if FlyoutButtonMixin then
-		button:SetAttribute("LABUseCustomFlyout", true)
+	button:SetAttribute("LABUseCustomFlyout", UseCustomFlyout)
 
+	-- nil out inherited functions from the flyout mixin, we override these in a metatable
+	if UseCustomFlyout then
 		button.GetPopupDirection = nil
 		button.IsPopupOpen = nil
 	end
@@ -529,7 +532,7 @@ function SetupSecureSnippets(button)
 		self:RunAttribute("UpdateState", self:GetAttribute("state"))
 	]])
 
-	if FlyoutButtonMixin then
+	if UseCustomFlyout then
 		button.header:SetFrameRef("flyoutHandler", GetFlyoutHandler())
 	end
 end
@@ -661,10 +664,6 @@ function Generic:OnButtonEvent(event, key, down, spellID)
 			UpdateRegisterClicks(self)
 		end
 	end
-end
-
-function Generic:OnButtonStateChanged()
-
 end
 
 -----------------------------------------------------------
@@ -867,7 +866,7 @@ end
 
 local DiscoverFlyoutSpells, UpdateFlyoutSpells, UpdateFlyoutHandlerScripts, FlyoutUpdateQueued
 
-if FlyoutButtonMixin then
+if UseCustomFlyout then
 	-- params: self, flyoutID
 	local FlyoutHandleFunc = [[
 		local SPELLFLYOUT_DEFAULT_SPACING = 4
@@ -1270,7 +1269,7 @@ function Generic:OnEnter()
 		UpdateNewAction(self)
 	end
 
-	if FlyoutButtonMixin then
+	if FlyoutButtonMixin and UseCustomFlyout then
 		FlyoutButtonMixin.OnEnter(self)
 	else
 		UpdateFlyout(self)
@@ -1283,7 +1282,7 @@ function Generic:OnEnter()
 end
 
 function Generic:OnLeave()
-	if FlyoutButtonMixin then
+	if FlyoutButtonMixin and UseCustomFlyout then
 		FlyoutButtonMixin.OnLeave(self)
 	else
 		UpdateFlyout(self)
@@ -1521,7 +1520,7 @@ function InitializeEventHandler()
 	lib.eventFrame:RegisterEvent("LOSS_OF_CONTROL_ADDED")
 	lib.eventFrame:RegisterEvent("LOSS_OF_CONTROL_UPDATE")
 
-	if FlyoutButtonMixin then
+	if UseCustomFlyout then
 		lib.eventFrame:RegisterEvent("PLAYER_LOGIN")
 		lib.eventFrame:RegisterEvent("SPELL_FLYOUT_UPDATE")
 
@@ -1533,11 +1532,11 @@ end
 
 function OnEvent(frame, event, arg1, ...)
 	if event == "PLAYER_LOGIN" then
-		if FlyoutButtonMixin then
+		if UseCustomFlyout then
 			DiscoverFlyoutSpells()
 		end
 	elseif event == "SPELLS_CHANGED" or event == "SPELL_FLYOUT_UPDATE" then
-		if FlyoutButtonMixin then
+		if UseCustomFlyout then
 			UpdateFlyoutSpells()
 		end
 	elseif event == "UNIT_MODEL_CHANGED" then
@@ -1658,7 +1657,7 @@ function OnEvent(frame, event, arg1, ...)
 			end
 		end
 
-		if FlyoutButtonMixin and FlyoutUpdateQueued then
+		if UseCustomFlyout and FlyoutUpdateQueued then
 			UpdateFlyoutSpells()
 			FlyoutUpdateQueued = nil
 		end
@@ -1677,7 +1676,7 @@ function OnEvent(frame, event, arg1, ...)
 	elseif event == "PET_STABLE_UPDATE" or event == "PET_STABLE_SHOW" then
 		ForAllButtons(Update, nil, event)
 
-		if event == "PET_STABLE_UPDATE" and FlyoutButtonMixin then
+		if event == "PET_STABLE_UPDATE" and UseCustomFlyout then
 			UpdateFlyoutSpells()
 		end
 	elseif event == "SPELL_ACTIVATION_OVERLAY_GLOW_SHOW" then
@@ -2572,7 +2571,7 @@ if ActionButton_UpdateFlyout then -- on Classic only?
 		end
 		self.FlyoutArrow:Hide()
 	end
-elseif FlyoutButtonMixin then -- on Retail and Classic
+elseif FlyoutButtonMixin and UseCustomFlyout then -- on Retail and Classic
 	function Generic:GetPopupDirection()
 		return self:GetAttribute("flyoutDirection") or "UP"
 	end
