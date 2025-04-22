@@ -90,12 +90,28 @@ function S:CooldownManager_SkinBar(frame, bar)
 	end
 end
 
+function S:CooldownManager_RefreshSpellCooldownInfo()
+	if not self.Cooldown then return end
+
+	local db = E.db.general.cooldownManager
+	local color = (self.cooldownUseAuraDisplayTime and db.swipeColorAura) or db.swipeColorSpell
+	self.Cooldown:SetSwipeColor(color.r, color.g, color.b, color.a)
+end
+
+function S:CooldownManager_UpdateSwipeColor(frame)
+	S.CooldownManager_RefreshSpellCooldownInfo(frame)
+end
+
 function S:CooldownManager_SkinItemFrame(frame)
 	if frame.Cooldown then
 		frame.Cooldown:SetSwipeTexture(E.media.blankTex)
 
 		if not frame.Cooldown.isRegisteredCooldown then
 			E:RegisterCooldown(frame.Cooldown, 'cdmanager')
+
+			if frame.RefreshSpellCooldownInfo then
+				hooksecurefunc(frame, 'RefreshSpellCooldownInfo', S.CooldownManager_RefreshSpellCooldownInfo)
+			end
 		end
 	end
 
@@ -123,13 +139,15 @@ function S:CooldownManager_UpdateViewer(element)
 		if frame.Bar then
 			S:CooldownManager_UpdateTextBar(frame.Bar)
 			S:CooldownManager_UpdateTextContainer(frame)
+			S:CooldownManager_UpdateSwipeColor(frame)
 		elseif frame.Icon then
 			S:CooldownManager_UpdateTextContainer(frame)
+			S:CooldownManager_UpdateSwipeColor(frame)
 		end
 	end
 end
 
-function S:CooldownManager_UpdateTexts()
+function S:CooldownManager_UpdateViewers()
 	S:CooldownManager_UpdateViewer(_G.UtilityCooldownViewer)
 	S:CooldownManager_UpdateViewer(_G.BuffBarCooldownViewer)
 	S:CooldownManager_UpdateViewer(_G.BuffIconCooldownViewer)
