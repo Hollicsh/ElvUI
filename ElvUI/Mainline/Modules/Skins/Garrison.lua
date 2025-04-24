@@ -2,7 +2,6 @@ local E, L, V, P, G = unpack(ElvUI)
 local S = E:GetModule('Skins')
 
 local _G = _G
-local next = next
 local unpack, pairs, ipairs, select = unpack, pairs, ipairs, select
 
 local CreateFrame = CreateFrame
@@ -105,9 +104,7 @@ local function ReskinMissionButton(button)
 end
 
 local function ReskinMissionList(frame)
-	for _, button in next, { frame.ScrollTarget:GetChildren() } do
-		ReskinMissionButton(button)
-	end
+	frame:ForEachFrame(ReskinMissionButton)
 end
 
 local function ReskinMissionComplete(frame)
@@ -204,6 +201,27 @@ local function SkinMissionFrame(frame, strip)
 
 	hooksecurefunc(missionList.ScrollBox, 'Update', ReskinMissionList)
 	hooksecurefunc(frame.FollowerTab, 'UpdateCombatantStats', UpdateSpellAbilities)
+end
+
+local function ReportListScrollUpdateChild(button)
+	if not button.IsSkinned then
+		button.BG:Hide()
+		button:CreateBackdrop('Transparent')
+		button.backdrop:Point('TOPLEFT')
+		button.backdrop:Point('BOTTOMRIGHT', 0, 1)
+
+		for _, reward in pairs(button.Rewards) do
+			reward:GetRegions():Hide()
+			S:HandleIcon(reward.Icon, true)
+			S:HandleIconBorder(reward.IconBorder, reward.Icon.backdrop)
+		end
+
+		button.IsSkinned = true
+	end
+end
+
+local function ReportListScrollUpdate(frame)
+	frame:ForEachFrame(ReportListScrollUpdateChild)
 end
 
 function S:Blizzard_GarrisonUI()
@@ -435,24 +453,7 @@ function S:Blizzard_GarrisonUI()
 	List:StripTextures()
 	S:HandleTrimScrollBar(List.ScrollBar)
 
-	hooksecurefunc(Report.List.ScrollBox, 'Update', function(frame)
-		for _, button in next, { frame.ScrollTarget:GetChildren() } do
-			if not button.IsSkinned then
-				button.BG:Hide()
-				button:CreateBackdrop('Transparent')
-				button.backdrop:Point('TOPLEFT')
-				button.backdrop:Point('BOTTOMRIGHT', 0, 1)
-
-				for _, reward in pairs(button.Rewards) do
-					reward:GetRegions():Hide()
-					S:HandleIcon(reward.Icon, true)
-					S:HandleIconBorder(reward.IconBorder, reward.Icon.backdrop)
-				end
-
-				button.IsSkinned = true
-			end
-		end
-	end)
+	hooksecurefunc(Report.List.ScrollBox, 'Update', ReportListScrollUpdate)
 
 	-- Landing page: Follower list
 	FollowerList = GarrisonLandingPage.FollowerList

@@ -271,9 +271,15 @@ do
 		AB:BindUpdate(button, 'MACRO')
 	end
 
-	local function MacroFrame_FirstUpdate(frame)
-		for _, button in next, { frame.MacroSelector.ScrollBox.ScrollTarget:GetChildren() } do
-			button:HookScript('OnEnter', OnEnter)
+	local function MacroSelectorScrollUpdateChild(button)
+		button:HookScript('OnEnter', OnEnter)
+	end
+
+	local function MacroSelectorScrollUpdate(frame)
+		if frame.MacroSelector then
+			for _, button in next, { frame.MacroSelector.ScrollBox.ScrollTarget:GetChildren() } do
+				MacroSelectorScrollUpdateChild(button)
+			end
 		end
 
 		AB:Unhook(frame, 'Update')
@@ -282,7 +288,7 @@ do
 	function AB:ADDON_LOADED(_, addon)
 		if addon == 'Blizzard_MacroUI' then
 			if _G.MacroFrame.Update then
-				AB:SecureHook(_G.MacroFrame, 'Update', MacroFrame_FirstUpdate)
+				AB:SecureHook(_G.MacroFrame, 'Update', MacroSelectorScrollUpdate)
 			else
 				for i = 1, MAX_ACCOUNT_MACROS do
 					_G['MacroButton'..i]:HookScript('OnEnter', OnEnter)
@@ -305,17 +311,19 @@ do
 		HideUIPanel(_G.SettingsPanel)
 	end
 
-	local function UpdateScrollBox(scrollBox)
-		for _, element in next, { scrollBox.ScrollTarget:GetChildren() } do
-			local data = element and element.data
-			if data and data.buttonText == QUICK_KEYBIND_MODE then
-				local button = element.Button
-				if button and button:GetScript('OnClick') ~= keybindButtonClick then
-					button:SetScript('OnClick', keybindButtonClick)
-					button:SetFormattedText('%s Keybind', E.title)
-				end
+	local function UpdateScrollBoxChild(element)
+		local data = element.data
+		if data and data.buttonText == QUICK_KEYBIND_MODE then
+			local button = element.Button
+			if button and button:GetScript('OnClick') ~= keybindButtonClick then
+				button:SetScript('OnClick', keybindButtonClick)
+				button:SetFormattedText('%s Keybind', E.title)
 			end
 		end
+	end
+
+	local function UpdateScrollBox(scrollBox)
+		scrollBox:ForEachFrame(UpdateScrollBoxChild)
 	end
 
 	function AB:SettingsDisplayCategory(category)
