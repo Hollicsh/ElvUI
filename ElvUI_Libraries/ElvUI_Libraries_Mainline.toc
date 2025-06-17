@@ -4,7 +4,7 @@
 ## Notes-ruRU: Библиотеки, поддерживающие ElvUI
 ## Author: Elv, Simpy
 ## Version: @project-version@
-## Interface: 110105
+## Interface: 110107
 ## X-oUF: ElvUF
 ## IconTexture: Interface\AddOns\ElvUI\Core\Media\Textures\LogoAddon
 ## Category-enUS: UI Overhaul
