@@ -29,16 +29,12 @@ local function HandleOptionSlot(frame, skip)
 	end
 end
 
-local function SetRewards(frame)
-	for rewardFrame in frame.rewardPool:EnumerateActive() do
-		if not rewardFrame.IsSkinned then
-			rewardFrame:CreateBackdrop('Transparent')
-			rewardFrame.NameFrame:SetAlpha(0)
-			rewardFrame.IconBorder:SetAlpha(0)
-			S:HandleIcon(rewardFrame.Icon)
-
-			rewardFrame.IsSkinned = true
-		end
+local function SetRewards(rewardFrame)
+	if not rewardFrame.backdrop then
+		rewardFrame:CreateBackdrop('Transparent')
+		rewardFrame.NameFrame:SetAlpha(0)
+		S:HandleIcon(rewardFrame.Icon, true)
+		S:HandleIconBorder(rewardFrame.IconBorder, rewardFrame.Icon.backdrop)
 	end
 end
 
@@ -70,10 +66,14 @@ function S:Blizzard_DelvesDifficultyPicker()
 	DifficultyPickerFrame:SetTemplate('Transparent')
 
 	S:HandleCloseButton(DifficultyPickerFrame.CloseButton)
+	DifficultyPickerFrame.CloseButton:ClearAllPoints()
+	DifficultyPickerFrame.CloseButton:Point('TOPRIGHT', DifficultyPickerFrame, 'TOPRIGHT', -3, -3)
 	S:HandleDropDownBox(DifficultyPickerFrame.Dropdown)
 	S:HandleButton(DifficultyPickerFrame.EnterDelveButton)
 
-	hooksecurefunc(DifficultyPickerFrame.DelveRewardsContainerFrame, 'SetRewards', SetRewards)
+	hooksecurefunc(DifficultyPickerFrame.DelveRewardsContainerFrame.ScrollBox, 'Update', function(self)
+		self:ForEachFrame(SetRewards)
+	end)
 end
 
 S:AddCallbackForAddon('Blizzard_DelvesDifficultyPicker')
