@@ -1692,6 +1692,7 @@ L["Stack Counter"] = "Количество стаков"
 L["Stack Threshold"] = "Стаки"
 L["Stacking Enabled"] = true
 L["Stacking Plates"] = true
+L["Stagger"] = "Пошатывание"
 L["Start Animation"] = "Начало анимации"
 L["Start Near Center"] = "Начинать от центра"
 L["Status Bar"] = "Полоса состояния"
