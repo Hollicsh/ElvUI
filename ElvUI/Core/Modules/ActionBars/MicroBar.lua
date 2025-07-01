@@ -185,8 +185,8 @@ function AB:HandleMicroTextures(button, name)
 			pushed:SetAlpha(0.25)
 		end
 
-		normal:SetInside(button.backdrop)
-		pushed:SetInside(button.backdrop)
+		normal:SetInside(button)
+		pushed:SetInside(button)
 
 		local color = E.media.rgbvaluecolor
 		if color then
@@ -197,11 +197,11 @@ function AB:HandleMicroTextures(button, name)
 		if disabled then
 			disabled:SetTexture(texture)
 			disabled:SetDesaturated(true)
-			disabled:SetInside(button.backdrop)
+			disabled:SetInside(button)
 		end
 
 		if button.FlashBorder then
-			button.FlashBorder:SetInside(button.backdrop)
+			button.FlashBorder:SetInside(button)
 
 			if icons then
 				button.FlashBorder:SetTexture(stock and (faction or stock.normal) or texture or character or nil)
@@ -226,7 +226,6 @@ function AB:HandleMicroButton(button, name)
 	assert(button, 'Invalid micro button name.')
 
 	button:SetTemplate()
-	button:SetParent(microBar)
 	button:HookScript('OnEnter', onEnter)
 	button:HookScript('OnLeave', onLeave)
 	button:SetHitRectInsets(0, 0, 0, 0)
@@ -312,28 +311,25 @@ function AB:UpdateMicroButtons()
 	local lastButton, anchorRowButton = microBar
 	for i, name in next, btns do
 		local button = _G[name]
-		if button:IsEnabled() then
-			local columnIndex = i - buttonsPerRow
-			local columnName = btns[columnIndex]
-			local columnButton = _G[columnName]
 
-			if not E.Retail then
-				button.commandName = commandKeys[name] -- to support KB like retail
-			end
+		local columnIndex = i - buttonsPerRow
+		local columnName = btns[columnIndex]
+		local columnButton = _G[columnName]
 
-			button.db = db
-
-			if i == 1 or i == buttonsPerRow then
-				anchorRowButton = button
-			end
-
-			button.handleBackdrop = true -- keep over HandleButton
-			AB:HandleButton(microBar, button, i, lastButton, columnButton)
-
-			lastButton = button
-		else -- when its enabled the HandleButton will reparent
-			button:SetParent(E.HiddenFrame)
+		if not E.Retail then
+			button.commandName = commandKeys[name] -- to support KB like retail
 		end
+
+		button.db = db
+
+		if i == 1 or i == buttonsPerRow then
+			anchorRowButton = button
+		end
+
+		button.handleBackdrop = true -- keep over HandleButton
+		AB:HandleButton(microBar, button, i, lastButton, columnButton)
+
+		lastButton = button
 	end
 
 	microBar:SetAlpha((db.mouseover and not microBar.IsMouseOvered and 0) or db.alpha)
