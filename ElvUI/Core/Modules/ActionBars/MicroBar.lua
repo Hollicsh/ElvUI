@@ -15,6 +15,7 @@ local InCombatLockdown = InCombatLockdown
 local hooksecurefunc = hooksecurefunc
 
 AB.MICRO_CLASSIC = {}
+AB.MICRO_NAMES = {} -- key: button, value: name
 AB.MICRO_BUTTONS = _G.MICRO_BUTTONS or {
 	'CharacterMicroButton',
 	'SpellbookMicroButton',
@@ -46,8 +47,8 @@ do
 		LFGMicroButton			= 6.00 / meep, -- Classic
 		EJMicroButton			= 7.00 / meep,
 		CollectionsMicroButton	= 8.00 / meep,
-		MainMenuMicroButton		= (E.Retail and 9 or 10) / meep, -- flip these
-		HelpMicroButton			= (E.Retail and 10 or 9) / meep, -- on classic
+		MainMenuMicroButton		= (E.Classic and 10 or 9) / meep, -- flip these
+		HelpMicroButton			= (E.Classic and 9 or 10) / meep, -- on classic
 		StoreMicroButton		= 10.0 / meep
 	}
 end
@@ -229,6 +230,8 @@ function AB:HandleMicroButton(button, name)
 	button:HookScript('OnEnter', onEnter)
 	button:HookScript('OnLeave', onLeave)
 	button:SetHitRectInsets(0, 0, 0, 0)
+
+	AB.MICRO_NAMES[button] = name
 
 	if not E.Retail then
 		AB.MICRO_CLASSIC[name] = {
@@ -439,6 +442,7 @@ function AB:SetupMicroBar()
 
 	local microMenu = AB:HasTicketButton()
 	if microMenu then
+		microMenu.UpdateHelpTicketButtonAnchor = E.noop -- prevent layout erroring
 		hooksecurefunc(microMenu, 'UpdateHelpTicketButtonAnchor', AB.UpdateHelpTicketButtonAnchor)
 	end
 
