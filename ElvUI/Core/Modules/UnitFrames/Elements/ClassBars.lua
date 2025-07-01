@@ -94,7 +94,7 @@ function UF:Configure_ClassBar(frame)
 	if not bars then return end
 
 	bars.Holder = frame.ClassBarHolder
-	bars.AdditionalHolder = (E.Retail or E.Mists) and frame.AdditionalPowerHolder
+	bars.AdditionalHolder = (E.Retail or E.Mists) and frame.ClassAdditionalHolder
 	bars.origParent = frame
 
 	local MAX_CLASS_BAR = frame.MAX_CLASS_BAR
@@ -222,6 +222,8 @@ function UF:Configure_ClassBar(frame)
 	end
 
 	if bars.AdditionalHolder and (E.myclass == 'DRUID' or (E.Mists and E.myclass == 'MONK')) then
+		bars.AdditionalHolder:Size(db.classAdditional.width, db.classAdditional.height)
+
 		if not bars.AdditionalHolder.mover then
 			E:CreateMover(bars.AdditionalHolder, 'AdditionalPowerMover', L["Additional Class Power"], nil, nil, nil, 'ALL,SOLO', nil, 'unitframe,individualUnits,player,classbar')
 		else
@@ -231,16 +233,20 @@ function UF:Configure_ClassBar(frame)
 		if frame.Stagger then
 			frame.Stagger:ClearAllPoints()
 			frame.Stagger:Point('BOTTOMLEFT', bars.AdditionalHolder, 'BOTTOMLEFT', UF.BORDER + UF.SPACING, UF.BORDER + UF.SPACING)
-			frame.Stagger:Size(CLASSBAR_WIDTH - SPACING, frame.CLASSBAR_HEIGHT - SPACING)
+			frame.Stagger:Size(db.classAdditional.width - SPACING, db.classAdditional.height - SPACING)
+			frame.Stagger:SetFrameLevel(db.classAdditional.frameLevel)
+			frame.Stagger:SetFrameStrata(db.classAdditional.frameStrata)
+			frame.Stagger:SetOrientation(db.classAdditional.orientation)
 		end
 
 		if frame.AdditionalPower then
 			frame.AdditionalPower:ClearAllPoints()
 			frame.AdditionalPower:Point('BOTTOMLEFT', bars.AdditionalHolder, 'BOTTOMLEFT', UF.BORDER + UF.SPACING, UF.BORDER + UF.SPACING)
-			frame.AdditionalPower:Size(CLASSBAR_WIDTH - SPACING, frame.CLASSBAR_HEIGHT - SPACING)
+			frame.AdditionalPower:Size(db.classAdditional.width - SPACING, db.classAdditional.height - SPACING)
+			frame.AdditionalPower:SetFrameLevel(db.classAdditional.frameLevel)
+			frame.AdditionalPower:SetFrameStrata(db.classAdditional.frameStrata)
+			frame.AdditionalPower:SetOrientation(db.classAdditional.orientation)
 		end
-
-		bars.AdditionalHolder:Size(CLASSBAR_WIDTH, frame.CLASSBAR_HEIGHT)
 	end
 
 	if frame.USE_MINI_CLASSBAR and not frame.CLASSBAR_DETACHED then
