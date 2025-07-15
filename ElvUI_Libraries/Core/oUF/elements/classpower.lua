@@ -122,7 +122,8 @@ end
 
 local function Update(self, event, unit, powerType)
 	if event == 'UNIT_AURA' then powerType = 'ARCANE_CHARGES' end
-	if not (powerType and unit and UnitIsUnit(unit, 'player')) then return end
+	if event ~= 'ClassPowerDisable' and event ~= 'ClassPowerEnable' and not powerType then return end
+	if not (unit and UnitIsUnit(unit, 'player')) then return end
 
 	local currentType = ClassPowerType[ClassPowerID]
 	local vehicle = unit == 'vehicle' and powerType == 'COMBO_POINTS'
@@ -224,10 +225,10 @@ local function Visibility(self, event, unit)
 		ClassPowerID = (oUF.isMists or CurrentSpec == SPEC_MONK_WINDWALKER) and POWERTYPE_CHI or -1
 	elseif PlayerClass == 'WARLOCK' then
 		ClassPowerID = oUF.isMists and ((CurrentSpec == SPEC_WARLOCK_DEMONOLOGY and POWERTYPE_DEMONIC_FURY) or (CurrentSpec == SPEC_WARLOCK_DESTRUCTION and POWERTYPE_BURNING_EMBERS)) or POWERTYPE_SOUL_SHARDS
+	elseif PlayerClass == 'MAGE' then
+		ClassPowerID = (CurrentSpec == SPEC_MAGE_ARCANE and POWERTYPE_ARCANE_CHARGES) or -1
 	elseif oUF.isMists and PlayerClass == 'PRIEST' then
 		ClassPowerID = (CurrentSpec == SPEC_PRIEST_SHADOW and POWERTYPE_SHADOW_ORBS) or -1
-	elseif oUF.isMists and PlayerClass == 'MAGE' then
-		ClassPowerID = (CurrentSpec == SPEC_MAGE_ARCANE and POWERTYPE_ARCANE_CHARGES) or -1
 	end
 
 	if (oUF.isRetail or oUF.isMists) and UnitHasVehicleUI('player') then
@@ -380,11 +381,8 @@ local function Enable(self, unit)
 		element.__max = #element
 		element.ForceUpdate = ForceUpdate
 
-		if RequirePower then
-			self:RegisterEvent('UNIT_DISPLAYPOWER', VisibilityPath)
-		end
-
-		oUF:RegisterEvent(self, 'SPELLS_CHANGED', Visibility, true)
+		self:RegisterEvent('UNIT_DISPLAYPOWER', VisibilityPath)
+		oUF:RegisterEvent(self, 'SPELLS_CHANGED', VisibilityPath, true)
 
 		element.ClassPowerEnable = ClassPowerEnable
 		element.ClassPowerDisable = ClassPowerDisable
@@ -409,7 +407,7 @@ local function Disable(self)
 		ClassPowerDisable(self)
 
 		self:UnregisterEvent('UNIT_DISPLAYPOWER', VisibilityPath)
-		oUF:UnregisterEvent(self, 'SPELLS_CHANGED', Visibility)
+		oUF:UnregisterEvent(self, 'SPELLS_CHANGED', VisibilityPath)
 	end
 end
 
