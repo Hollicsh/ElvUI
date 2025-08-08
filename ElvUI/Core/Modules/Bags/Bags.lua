@@ -2301,6 +2301,8 @@ function B:ConstructContainerFrame(name, isBank)
 			f.purchaseBagButton = B:ConstructPurchaseButton(f, L["Purchase Bags"])
 			f.purchaseBagButton:SetScript('OnClick', B.CoverButton_ClickBank)
 			f.purchaseBagButton:Point('RIGHT', f.bagsButton, 'LEFT', -5, 0)
+
+			f.stackButton:Point('BOTTOMRIGHT', f.holderFrame, 'TOPRIGHT', 0, 3)
 		else
 			do -- main bank button
 				local tabHolder = B:ConstructContainerTabHolder(f, name, 'BankTabs', 6)
@@ -2387,12 +2389,13 @@ function B:ConstructContainerFrame(name, isBank)
 			f.purchaseSecureButton:Point('RIGHT', f.bagsButton, 'LEFT', -5, 0)
 			f.purchaseSecureButton:RegisterForClicks('AnyUp', 'AnyDown')
 			f.purchaseSecureButton:SetAttribute('type', 'click')
+
+			f.stackButton:Point('RIGHT', f.depositButton, 'LEFT', -5, 0)
 		end
 
 		f.stackButton.ttText = L["Stack Items In Bank"]
 		f.stackButton.ttText2 = L["Hold Shift:"]
 		f.stackButton.ttText2desc = L["Stack Items To Bags"]
-		f.stackButton:Point('RIGHT', f.depositButton, 'LEFT', -5, 0)
 		f.stackButton:SetScript('OnEnter', B.Tooltip_Show)
 		f.stackButton:SetScript('OnLeave', GameTooltip_Hide)
 		f.stackButton:SetScript('OnClick', function()
@@ -2795,17 +2798,33 @@ function B:CloseBags()
 	TT:GameTooltip_SetDefaultAnchor(GameTooltip)
 end
 
-function B:PanelShowHidden(panel)
-	if not panel:IsShown() then
-		panel:Show()
+do
+	local lockedFrames = {}
+	local function LockParent(frame, parent)
+		if parent ~= E.HiddenFrame then
+			frame:SetParent(E.HiddenFrame)
+		end
 	end
 
-	panel:SetParent(E.HiddenFrame)
-end
+	function B:PanelShowHidden(panel)
+		if not panel then return end
 
-function B:PanelHide(panel)
-	if panel:IsShown() then
-		panel:Hide()
+		if not panel:IsShown() then
+			panel:Show()
+		end
+
+		if not lockedFrames[panel] then
+			hooksecurefunc(panel, 'SetParent', LockParent)
+			lockedFrames[panel] = true
+		end
+
+		panel:SetParent(E.HiddenFrame)
+	end
+
+	function B:PanelHide(panel)
+		if panel and panel:IsShown() then
+			panel:Hide()
+		end
 	end
 end
 
