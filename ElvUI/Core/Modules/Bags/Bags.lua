@@ -117,9 +117,6 @@ local CHARACTERBANK_TYPE = (Enum.BankType and Enum.BankType.Character) or 0
 local WARBANDBANK_TYPE = (Enum.BankType and Enum.BankType.Account) or 2
 local WARBAND_UNTIL_EQUIPPED = (Enum.ItemBind and Enum.ItemBind.ToBnetAccountUntilEquipped) or 9
 
-local BOTTOM_OFFSET = 8
-local TOP_OFFSET = 50
-
 local BAG_FILTER_ASSIGN_TO = BAG_FILTER_ASSIGN_TO
 local BAG_FILTER_CLEANUP = BAG_FILTER_CLEANUP
 local BAG_FILTER_IGNORE = BAG_FILTER_IGNORE
@@ -227,6 +224,8 @@ local BANK_SPACE_OFFSET = E.Retail and 30 or 0
 local MAX_CONTAINER_ITEMS = 38
 local CONTAINER_SPACING = 0
 local CONTAINER_SCALE = 0.75
+local BOTTOM_OFFSET = 8
+local TOP_OFFSET = 50
 local BIND_START, BIND_END
 
 B.numTrackedTokens = 0
@@ -915,15 +914,15 @@ function B:UpdateCooldown(slot)
 	end
 end
 
-function B:SetSlotAlphaForBag(f, bag)
-	for _, bagID in next, f.BagIDs do
-		f.Bags[bagID]:SetAlpha(bagID == bag and 1 or .1)
+function B:SetSlotAlphaForBag(f, bagID)
+	for id, bag in next, f.Bags do
+		bag:SetAlpha(bagID == id and 1 or .1)
 	end
 end
 
 function B:ResetSlotAlphaForBags(f)
-	for _, bagID in next, f.BagIDs do
-		f.Bags[bagID]:SetAlpha(1)
+	for _, bag in next, f.Bags do
+		bag:SetAlpha(1)
 	end
 end
 
@@ -1099,7 +1098,7 @@ function B:LayoutCustomSlots(f, bankID, buttonSize, buttonSpacing, bagSpacing, n
 		slot:ClearAllPoints()
 		slot:SetSize(buttonSize, buttonSize)
 
-		local prevSlot = bag[slotID - 1] or (slotID == 1 and lastSlot)
+		local prevSlot = (slotID ~= 1 and bag[slotID - 1]) or (slotID == 1 and lastSlot)
 		if prevSlot then
 			if (totalSlots - 1) % numColumns == 0 then
 				slot:Point('TOP', lastRow, 'BOTTOM', 0, -(buttonSpacing + (totalSlots == 1 and bagSpacing or 0)))
@@ -1171,7 +1170,7 @@ function B:Layout(isBank)
 	local numContainerColumns = floor(containerWidth / (buttonSize + buttonSpacing))
 	local holderWidth = ((buttonSize + buttonSpacing) * numContainerColumns) - buttonSpacing
 	local bagSpacing = isBank and B.db.split.bankSpacing or B.db.split.bagSpacing
-	local professionSplit = (isBank and B.db.split.alwaysProfessionBank) or B.db.split.alwaysProfessionBags
+	local professionSplit = (not E.Retail and isBank and B.db.split.alwaysProfessionBank) or B.db.split.alwaysProfessionBags
 	local isSplit = B.db.split[isBank and 'bank' or 'player']
 	local reverseSlots = B.db.reverseSlots
 
@@ -1773,23 +1772,19 @@ end
 
 function B:ConstructContainerBank(f, id, key, keySize)
 	local frame = CreateFrame('Frame', 'ElvUI'..key, f)
+	frame:SetAllPoints(f.holderFrame)
+	frame:SetID(id)
+
+	frame.numSlots = keySize
+	frame.staleSlots = {}
+
 	f[key] = frame
 
-	frame:Point('TOP', f, 'TOP', 0, -f.topOffset)
-	frame:Point('BOTTOM', f, 'BOTTOM', 0, BOTTOM_OFFSET)
-	frame:SetID(id)
-	frame:Hide()
+	f.Bags[id] = frame
 
-	local bag = {}
 	for slotID = 1, keySize do
-		bag[slotID] = B:ConstructContainerButton(f, id, slotID)
+		frame[slotID] = B:ConstructContainerButton(f, id, slotID)
 	end
-
-	bag.numSlots = keySize
-	bag.staleSlots = {}
-
-	f.Bags[id] = bag
-	frame.slots = bag
 
 	return frame
 end
@@ -1814,6 +1809,11 @@ function B:BankTabs_SettingsToTooltip(tooltip, depositFlags)
 end
 
 function B:BankTabs_OnEnter()
+	local combined = B.db[B.WarbandBanks[self.BagID] and 'warbandCombined' or 'bankCombined']
+	if combined then
+		B:SetSlotAlphaForBag(self.bagFrame, self.BagID)
+	end
+
 	if GameTooltip:IsForbidden() then return end
 
 	local data = B:BankTab_PurchasedData(self.bankType)
@@ -1828,6 +1828,11 @@ function B:BankTabs_OnEnter()
 end
 
 function B:BankTabs_OnLeave()
+	local combined = B.db[B.WarbandBanks[self.BagID] and 'warbandCombined' or 'bankCombined']
+	if combined then
+		B:ResetSlotAlphaForBags(self.bagFrame)
+	end
+
 	if GameTooltip:IsForbidden() then return end
 
 	GameTooltip:Hide()
@@ -2117,9 +2122,18 @@ function B:CoverButton_ClickBank()
 end
 
 function B:BagsButton_ClickBank()
-	local frame = self:GetParent()
-	ToggleFrame(frame.ContainerHolder)
 	PlaySound(852) --IG_MAINMENU_OPTION
+
+	local f = self:GetParent()
+	if E.Retail then
+		if f.bankType == WARBANDBANK_TYPE then
+			ToggleFrame(f.WarbandTabs)
+		else
+			ToggleFrame(f.BankTabs)
+		end
+	else
+		ToggleFrame(f.ContainerHolder)
+	end
 end
 
 function B:BagsButton_ClickBag()
@@ -2248,6 +2262,7 @@ function B:ConstructContainerFrame(name, isBank)
 	f.bagsButton.ttText = L["Toggle Bags"]
 	f.bagsButton:SetScript('OnEnter', B.Tooltip_Show)
 	f.bagsButton:SetScript('OnLeave', GameTooltip_Hide)
+	f.bagsButton:SetScript('OnClick', B.BagsButton_ClickBank)
 
 	--Search
 	f.editBox = CreateFrame('EditBox', name..'EditBox', f, 'SearchBoxTemplate')
@@ -2283,14 +2298,10 @@ function B:ConstructContainerFrame(name, isBank)
 		f.notPurchased = {}
 
 		if not E.Retail then
-			f.bagsButton:SetScript('OnClick', B.BagsButton_ClickBank)
-
 			f.purchaseBagButton = B:ConstructPurchaseButton(f, L["Purchase Bags"])
 			f.purchaseBagButton:SetScript('OnClick', B.CoverButton_ClickBank)
 			f.purchaseBagButton:Point('RIGHT', f.bagsButton, 'LEFT', -5, 0)
 		else
-			f.bagsButton:Hide()
-
 			do -- main bank button
 				local tabHolder = B:ConstructContainerTabHolder(f, name, 'BankTabs', 6)
 
@@ -2373,7 +2384,7 @@ function B:ConstructContainerFrame(name, isBank)
 			f.depositButton:SetScript('OnLeave', GameTooltip_Hide)
 
 			f.purchaseSecureButton = B:ConstructPurchaseButton(f, L["Purchase Bags"], 'InsecureActionButtonTemplate')
-			f.purchaseSecureButton:Point('RIGHT', f.sortButton, 'LEFT', -5, 0)
+			f.purchaseSecureButton:Point('RIGHT', f.bagsButton, 'LEFT', -5, 0)
 			f.purchaseSecureButton:RegisterForClicks('AnyUp', 'AnyDown')
 			f.purchaseSecureButton:SetAttribute('type', 'click')
 		end
@@ -2919,6 +2930,14 @@ function B:BankTabs_UpdateIcons(bankType)
 	end
 end
 
+function B:BankTabs_SwapTabs(f, tab)
+	local tabsShown = tab:IsShown()
+	if tabsShown then
+		ToggleFrame(f.BankTabs)
+		ToggleFrame(f.WarbandTabs)
+	end
+end
+
 function B:BANK_TAB_SETTINGS_UPDATED(_, bankType)
 	B:BankTabs_UpdateIcons(bankType)
 end
@@ -2932,14 +2951,14 @@ function B:ShowBankTab(f, bankTab)
 
 	B.BankTab = bankTab or (E.Retail and 6) or 1
 
+	local warbandIndex = B.WarbandBanks[B.BankTab]
+	f.bankType = warbandIndex and WARBANDBANK_TYPE or CHARACTERBANK_TYPE
 	f.ContainerHolder:Hide()
 
-	local warbandIndex = B.WarbandBanks[B.BankTab]
 	if warbandIndex then
 		f.fullBank = not CanPurchaseBankTab(WARBANDBANK_TYPE)
 
-		f.BankTabs:Hide()
-		f.WarbandTabs:Show()
+		B:BankTabs_SwapTabs(f, f.BankTabs)
 
 		for _, bankIndex in next, B.CharacterBanks do
 			f['BankTabs'..bankIndex]:Hide()
@@ -2962,12 +2981,11 @@ function B:ShowBankTab(f, bankTab)
 		if E.Retail then
 			f.fullBank = not CanPurchaseBankTab(CHARACTERBANK_TYPE)
 
+			B:BankTabs_SwapTabs(f, f.WarbandTabs)
+
 			for _, bankIndex in next, B.WarbandBanks do
 				f['WarbandTabs'..bankIndex]:Hide()
 			end
-
-			f.BankTabs:Show()
-			f.WarbandTabs:Hide()
 
 			f.purchaseSecureButton:SetShown(not f.fullBank)
 			f.purchaseSecureButton:SetScript('OnClick', function()
@@ -2988,7 +3006,7 @@ function B:ShowBankTab(f, bankTab)
 		f.sortButton:Point('RIGHT', f.stackButton, 'LEFT', -5, 0)
 	end
 
-	f.editBox:Point('RIGHT', (not f.fullBank and f.purchaseSecureButton or f.purchaseBagButton) or f.sortButton, 'LEFT', -5, BANK_SPACE_OFFSET)
+	f.editBox:Point('RIGHT', (not f.fullBank and f.purchaseSecureButton or f.purchaseBagButton) or f.bagsButton, 'LEFT', -5, BANK_SPACE_OFFSET)
 
 	if previousTab ~= B.BankTab then
 		B:Layout(true)
