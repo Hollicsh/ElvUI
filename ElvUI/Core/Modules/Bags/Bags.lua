@@ -502,13 +502,13 @@ end
 
 -- We need to use the Pawn function here to show actually the icon, as Blizzard API doesnt seem to work.
 function B:UpdateItemUpgradeIcon(slot)
-	if not B.db.upgradeIcon or not slot.isEquipment or not _G.PawnIsContainerItemAnUpgrade then
+	if not B.db.upgradeIcon or (not slot.isEquipment or not slot.itemLink) or not _G.PawnShouldItemLinkHaveUpgradeArrowUnbudgeted then
 		slot.UpgradeIcon:SetShown(false)
 		slot:SetScript('OnUpdate', nil)
 		return
 	end
 
-	local isUpgrade = _G.PawnIsContainerItemAnUpgrade(slot.BagID, slot.SlotID)
+	local isUpgrade = _G.PawnShouldItemLinkHaveUpgradeArrowUnbudgeted(slot.itemLink, true)
 	if isUpgrade == nil then -- nil means not all the data was available to determine if this is an upgrade.
 		slot.UpgradeIcon:SetShown(false)
 		slot:SetScript('OnUpdate', B.UpgradeCheck_OnUpdate)
@@ -2590,12 +2590,14 @@ function B:ConstructContainerButton(f, bagID, slotID)
 		slot.Background:Hide()
 	end
 
-	if slot.UpgradeIcon then
-		slot.UpgradeIcon:SetTexture(E.Media.Textures.BagUpgradeIcon)
-		slot.UpgradeIcon:SetTexCoord(0, 1, 0, 1)
-		slot.UpgradeIcon:SetInside()
-		slot.UpgradeIcon:Hide()
+	if not slot.UpgradeIcon then
+		slot.UpgradeIcon = slot:CreateTexture(nil, 'OVERLAY', nil, 2)
 	end
+
+	slot.UpgradeIcon:SetTexture(E.Media.Textures.BagUpgradeIcon)
+	slot.UpgradeIcon:SetTexCoord(0, 1, 0, 1)
+	slot.UpgradeIcon:SetInside()
+	slot.UpgradeIcon:Hide()
 
 	if not slot.JunkIcon then
 		slot.JunkIcon = slot:CreateTexture(nil, 'OVERLAY', nil, 2)
