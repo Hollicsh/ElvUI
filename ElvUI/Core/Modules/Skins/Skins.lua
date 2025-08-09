@@ -164,6 +164,42 @@ do
 	end
 end
 
+function S:ClearSetTexture(texture)
+	if texture ~= E.ClearTexture then
+		self:SetTexture(E.ClearTexture)
+	end
+end
+
+function S:ClearNormalTexture(texture)
+	if texture ~= E.ClearTexture then
+		self:SetNormalTexture(E.ClearTexture)
+	end
+end
+
+function S:ClearPushedTexture(texture)
+	if texture ~= E.ClearTexture then
+		self:SetPushedTexture(E.ClearTexture)
+	end
+end
+
+function S:ClearDisabledTexture(texture)
+	if texture ~= E.ClearTexture then
+		self:SetDisabledTexture(E.ClearTexture)
+	end
+end
+
+function S:ClearHighlightTexture(texture)
+	if texture ~= E.ClearTexture then
+		self:SetHighlightTexture(E.ClearTexture)
+	end
+end
+
+function S:ClearCheckedTexture(texture)
+	if texture ~= E.ClearTexture then
+		self:SetCheckedTexture(E.ClearTexture)
+	end
+end
+
 function S:HandleButtonHighlight(frame, r, g, b)
 	if frame.SetHighlightTexture then
 		frame:SetHighlightTexture(E.ClearTexture)
@@ -302,14 +338,94 @@ function S:SetDisabledBackdrop()
 	end
 end
 
--- function to handle the recap button script
-function S:UpdateRecapButton()
+do
+	local hookedFrames = {}
+	function S:StaticPopup_OnShow() -- UpdateRecapButton is created OnShow
+		if self.UpdateRecapButton and not hookedFrames[self] then
+			hookedFrames[self] = true
+
+			hooksecurefunc(self, 'UpdateRecapButton', S.StaticPopup_UpdateRecapButton)
+		end
+	end
+end
+
+function S:StaticPopup_UpdateRecapButton()
 	-- when UpdateRecapButton runs and enables the button, it unsets OnEnter
 	-- we need to reset it with ours. blizzard will replace it when the button
 	-- is disabled. so, we don't have to worry about anything else.
-	if self and self.button4 and self.button4:IsEnabled() then
-		self.button4:SetScript('OnEnter', S.SetModifiedBackdrop)
-		self.button4:SetScript('OnLeave', S.SetOriginalBackdrop)
+
+	local button = self.button4
+	if button and button:IsEnabled() then
+		button:SetScript('OnEnter', S.SetModifiedBackdrop)
+		button:SetScript('OnLeave', S.SetOriginalBackdrop)
+	end
+end
+
+function S:StaticPopup_HandleButton(button)
+	S:HandleButton(button)
+
+	button:OffsetFrameLevel(1)
+	button:CreateShadow(5)
+	button.shadow:SetAlpha(0)
+	button.shadow:SetBackdropBorderColor(unpack(E.media.rgbvaluecolor))
+	button.Flash:Hide()
+
+	local anim1, anim2 = button.PulseAnim:GetAnimations()
+	anim1:SetTarget(button.shadow)
+	anim2:SetTarget(button.shadow)
+end
+
+function S:HandleStaticPopup(popup)
+	if not popup then return end
+
+	popup:StripTextures()
+	popup:SetTemplate('Transparent')
+	popup:HookScript('OnShow', S.StaticPopup_OnShow)
+
+	local i = 1
+	local button = E:StaticPopup_GetElement(popup, 'Button'..i)
+	while button do
+		S:StaticPopup_HandleButton(button)
+
+		i = i + 1
+		button = E:StaticPopup_GetElement(popup, 'Button'..i)
+	end
+
+	local closeButton = E:StaticPopup_GetElement(popup, 'CloseButton')
+	if closeButton then
+		S:HandleCloseButton(closeButton)
+	end
+
+	local moneyInputFrame = E:StaticPopup_GetElement(popup, 'MoneyInputFrame')
+	if moneyInputFrame then
+		S:HandleEditBox(moneyInputFrame.gold)
+		S:HandleEditBox(moneyInputFrame.silver)
+		S:HandleEditBox(moneyInputFrame.copper)
+	end
+
+	local editBox = E:StaticPopup_GetElement(popup, 'EditBox')
+	if editBox then
+		S:HandleEditBox(editBox)
+		editBox:OffsetFrameLevel(1)
+	end
+
+	local itemFrame = E:StaticPopup_GetElement(popup, 'ItemFrame')
+	if itemFrame then
+		local itemFrameNameFrame = itemFrame.NameFrame or E:StaticPopup_GetElement(popup, 'ItemFrameNameFrame')
+		if itemFrameNameFrame then
+			itemFrameNameFrame:StripTextures()
+		end
+
+		local item = itemFrame.Item or itemFrame
+		S:HandleItemButton(item, true)
+		S:HandleIconBorder(item.IconBorder, item.backdrop)
+
+		local normalTexture = item:GetNormalTexture()
+		if normalTexture then
+			normalTexture:SetTexture()
+
+			hooksecurefunc(normalTexture, 'SetTexture', S.ClearSetTexture)
+		end
 	end
 end
 
@@ -1314,9 +1430,6 @@ do
 	local check = [[Interface\Buttons\UI-CheckBox-Check]]
 	local disabled = [[Interface\Buttons\UI-CheckBox-Check-Disabled]]
 
-	local function checkNormalTexture(checkbox, texture) if texture ~= E.ClearTexture then checkbox:SetNormalTexture(E.ClearTexture) end end
-	local function checkPushedTexture(checkbox, texture) if texture ~= E.ClearTexture then checkbox:SetPushedTexture(E.ClearTexture) end end
-	local function checkHighlightTexture(checkbox, texture) if texture ~= E.ClearTexture then checkbox:SetHighlightTexture(E.ClearTexture) end end
 	local function checkCheckedTexture(checkbox, texture)
 		if texture == E.Media.Textures.Melli or texture == check then return end
 		checkbox:SetCheckedTexture(S.db.checkBoxSkin and E.Media.Textures.Melli or check)
@@ -1375,10 +1488,10 @@ do
 
 			frame:HookScript('OnDisable', checkOnDisable)
 
-			hooksecurefunc(frame, 'SetNormalTexture', checkNormalTexture)
-			hooksecurefunc(frame, 'SetPushedTexture', checkPushedTexture)
 			hooksecurefunc(frame, 'SetCheckedTexture', checkCheckedTexture)
-			hooksecurefunc(frame, 'SetHighlightTexture', checkHighlightTexture)
+			hooksecurefunc(frame, 'SetNormalTexture', S.ClearNormalTexture)
+			hooksecurefunc(frame, 'SetPushedTexture', S.ClearPushedTexture)
+			hooksecurefunc(frame, 'SetHighlightTexture', S.ClearHighlightTexture)
 		end
 
 		frame.IsSkinned = true
@@ -1387,11 +1500,6 @@ end
 
 do
 	local background = [[Interface\Minimap\UI-Minimap-Background]]
-
-	local function buttonNormalTexture(frame, texture) if texture ~= E.ClearTexture then frame:SetNormalTexture(E.ClearTexture) end end
-	local function buttonPushedTexture(frame, texture) if texture ~= E.ClearTexture then frame:SetPushedTexture(E.ClearTexture) end end
-	local function buttonDisabledTexture(frame, texture) if texture ~= E.ClearTexture then frame:SetDisabledTexture(E.ClearTexture) end end
-	local function buttonHighlightTexture(frame, texture) if texture ~= E.ClearTexture then frame:SetHighlightTexture(E.ClearTexture) end end
 
 	function S:HandleRadioButton(Button)
 		if Button.IsSkinned then return end
@@ -1434,10 +1542,10 @@ do
 		Disabled:SetVertexColor(.3, .3, .3)
 		Disabled:AddMaskTexture(OutsideMask)
 
-		hooksecurefunc(Button, 'SetNormalTexture', buttonNormalTexture)
-		hooksecurefunc(Button, 'SetPushedTexture', buttonPushedTexture)
-		hooksecurefunc(Button, 'SetDisabledTexture', buttonDisabledTexture)
-		hooksecurefunc(Button, 'SetHighlightTexture', buttonHighlightTexture)
+		hooksecurefunc(Button, 'SetNormalTexture', S.ClearNormalTexture)
+		hooksecurefunc(Button, 'SetPushedTexture', S.ClearPushedTexture)
+		hooksecurefunc(Button, 'SetDisabledTexture', S.ClearDisabledTexture)
+		hooksecurefunc(Button, 'SetHighlightTexture', S.ClearHighlightTexture)
 
 		Button.IsSkinned = true
 	end
