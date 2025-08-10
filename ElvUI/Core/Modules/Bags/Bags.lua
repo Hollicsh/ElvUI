@@ -97,11 +97,11 @@ local IG_BACKPACK_CLOSE = SOUNDKIT.IG_BACKPACK_CLOSE
 local IG_BACKPACK_OPEN = SOUNDKIT.IG_BACKPACK_OPEN
 local ITEMQUALITY_COMMON = Enum.ItemQuality.Common or Enum.ItemQuality.Standard
 local ITEMQUALITY_POOR = Enum.ItemQuality.Poor
+local NUM_BAG_FRAMES = NUM_BAG_FRAMES or 4
 local MAX_WATCHED_TOKENS = MAX_WATCHED_TOKENS or 20
-local NUM_BAG_FRAMES = NUM_BAG_FRAMES
-local NUM_BANKGENERIC_SLOTS = NUM_BANKGENERIC_SLOTS
-local NUM_CONTAINER_FRAMES = NUM_CONTAINER_FRAMES
-local LE_ITEM_CLASS_QUESTITEM = LE_ITEM_CLASS_QUESTITEM
+local NUM_CONTAINER_FRAMES = NUM_CONTAINER_FRAMES or 13
+local NUM_BANKGENERIC_SLOTS = NUM_BANKGENERIC_SLOTS or 28
+local LE_ITEM_CLASS_QUESTITEM = LE_ITEM_CLASS_QUESTITEM or 12
 local BINDING_NAME_TOGGLEKEYRING = BINDING_NAME_TOGGLEKEYRING
 local BANK_TAB_DEPOSIT_ASSIGNMENTS = BANK_TAB_DEPOSIT_ASSIGNMENTS
 local BANK_TAB_EXPANSION_ASSIGNMENT = BANK_TAB_EXPANSION_ASSIGNMENT
@@ -370,29 +370,28 @@ function B:Tooltip_Show()
 	GameTooltip:Show()
 end
 
-do
-	local function DisableFrame(frame, container)
-		if not frame then return end
+function B:DisableFrame(frame)
+	frame:SetScript('OnShow', nil)
+	frame:SetScript('OnHide', nil)
+	frame:UnregisterAllEvents()
+	frame:ClearAllPoints()
 
-		frame:UnregisterAllEvents()
-		frame:SetScript('OnShow', nil)
-		frame:SetScript('OnHide', nil)
-		frame:SetParent(E.HiddenFrame)
-		frame:ClearAllPoints()
-		frame:Point('BOTTOM')
+	hooksecurefunc(frame, 'SetPoint', frame.ClearAllPoints)
+end
 
-		if container then -- this will fix itemButton being nil inside of UpdateItemLayout when first accessing a vendor then adding a bag
-			frame:RegisterEvent('BAG_CONTAINER_UPDATE')
-		end
+function B:DisableBlizzard()
+	B:DisableFrame(_G.BankFrame)
+
+	for i = 1, NUM_CONTAINER_FRAMES do
+		B:DisableFrame(_G['ContainerFrame'..i])
 	end
 
-	function B:DisableBlizzard()
-		DisableFrame(_G.BankFrame)
-		DisableFrame(_G.ContainerFrameCombinedBags, true)
+	local combinedBag = _G.ContainerFrameCombinedBags
+	if combinedBag then
+		B:DisableFrame(combinedBag)
 
-		for i = 1, NUM_CONTAINER_FRAMES do
-			_G['ContainerFrame'..i]:Kill()
-		end
+		-- this will fix itemButton being nil inside of UpdateItemLayout when first accessing a vendor then adding a bag
+		combinedBag:RegisterEvent('BAG_CONTAINER_UPDATE')
 	end
 end
 
@@ -732,8 +731,12 @@ function B:UpdateSlot(frame, bagID, slotID)
 	end
 
 	if E.Retail then
-		if slot.ScrapIcon then B:UpdateItemScrapIcon(slot) end
-		slot:UpdateItemContextMatching() -- Blizzards way to highlighting for Scrap, Rune Carving, Upgrade Items and whatever else.
+		if slot.ScrapIcon then
+			B:UpdateItemScrapIcon(slot)
+		end
+
+		-- Blizzards way to highlighting for Scrap, Rune Carving, Upgrade Items and whatever else
+		slot:UpdateItemContextMatching()
 	end
 
 	B:UpdateItemLevel(slot)
@@ -757,7 +760,7 @@ function B:UpdateSlot(frame, bagID, slotID)
 end
 
 function B:GetContainerNumSlots(bagID)
-	return (B.WarbandBanks[bagID] and B.WARBANDBANK_SIZE) or (bagID == KEYRING_CONTAINER and GetKeyRingSize()) or GetContainerNumSlots(bagID)
+	return (bagID == KEYRING_CONTAINER and GetKeyRingSize()) or GetContainerNumSlots(bagID)
 end
 
 function B:UpdateBagButtons()
@@ -1755,18 +1758,27 @@ end
 function B:ConstructContainerCover(frame)
 	local cover = CreateFrame('Button', '$parentCover', frame)
 	cover:SetTemplate()
+	cover:Point('TOPLEFT')
+	cover:Point('BOTTOMRIGHT')
 	cover:SetFrameLevel(15)
+	cover:Hide()
 
 	cover.secureButton = B:ConstructCoverButton(cover, 'SecurePurchase', L["Purchase"], 'InsecureActionButtonTemplate')
 	cover.secureButton:RegisterForClicks('AnyUp', 'AnyDown')
-	cover.secureButton:Hide()
+	cover.secureButton:SetAttribute('type', 'click')
+	cover.secureButton:SetAttribute('clickbutton', _G.BankPanel.PurchasePrompt.TabCostFrame.PurchaseButton)
+	cover.secureButton:HookScript('OnClick', function()
+		PlaySound(852) --IG_MAINMENU_OPTION
+	end)
 
 	cover.button = B:ConstructCoverButton(cover, 'Purchase', L["Purchase"])
+	cover.button:Hide()
 
 	cover.text = cover:CreateFontString(nil, 'OVERLAY')
 	cover.text:FontTemplate()
 	cover.text:Point('BOTTOM', cover.button, 'TOP', 0, 10)
 	cover.text:SetWordWrap(true)
+	cover.text:SetText(_G.ACCOUNT_BANK_TAB_PURCHASE_PROMPT)
 
 	return cover
 end
@@ -2092,23 +2104,7 @@ function B:ConstructContainerTabHolder(f, name, key, totalBags)
 	f[key] = frame
 
 	frame.totalBags = totalBags or 5
-
-	local cover = B:ConstructContainerCover(frame)
-	if cover then
-		cover:Point('TOPLEFT')
-		cover:Point('BOTTOMRIGHT')
-		cover.text:SetText(_G.ACCOUNT_BANK_TAB_PURCHASE_PROMPT)
-		cover.button:Hide()
-
-		cover.secureButton:Show()
-		cover.secureButton:SetAttribute('type', 'click')
-		cover.secureButton:SetAttribute('clickbutton', _G.BankPanel.PurchasePrompt.TabCostFrame.PurchaseButton)
-		cover.secureButton:HookScript('OnClick', function()
-			PlaySound(852) --IG_MAINMENU_OPTION
-		end)
-
-		frame.cover = cover
-	end
+	frame.cover = B:ConstructContainerCover(frame)
 
 	return frame
 end
@@ -2807,8 +2803,6 @@ function B:PanelShowHidden(panel)
 	if panel and not panel:IsShown() then
 		panel:Show()
 	end
-
-	panel:SetParent(E.HiddenFrame)
 end
 
 function B:PanelHide(panel)
