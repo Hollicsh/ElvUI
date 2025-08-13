@@ -4,8 +4,8 @@ local LibStub = _G.LibStub
 
 local _G = _G
 local hooksecurefunc = hooksecurefunc
+local unpack, type, gsub, rad, strfind = unpack, type, gsub, rad, strfind
 local tinsert, xpcall, next, ipairs, pairs = tinsert, xpcall, next, ipairs, pairs
-local unpack, assert, type, gsub, rad, strfind = unpack, assert, type, gsub, rad, strfind
 
 local CreateFrame = CreateFrame
 local IsAddOnLoaded = C_AddOns.IsAddOnLoaded
@@ -1231,26 +1231,39 @@ do --Tab Regions
 	end
 end
 
-function S:HandleRotateButton(btn)
-	if btn.IsSkinned then return end
+function S:HandleRotateButton(frame, width, height, noSize)
+	if frame.IsSkinned then return end
 
-	btn:SetTemplate()
-	btn:Size(btn:GetWidth() - 14, btn:GetHeight() - 14)
+	if not noSize then
+		frame:Size(width or 24, height or 24)
+	end
 
-	local normTex = btn:GetNormalTexture()
-	local pushTex = btn:GetPushedTexture()
-	local highlightTex = btn:GetHighlightTexture()
+	frame:SetTemplate()
 
-	normTex:SetInside()
-	normTex:SetTexCoord(0.3, 0.29, 0.3, 0.65, 0.69, 0.29, 0.69, 0.65)
+	local left = strfind(frame:GetDebugName(), 'Left')
+	local rotate = left and 'common-icon-rotateleft' or 'common-icon-rotateright'
 
-	pushTex:SetAllPoints(normTex)
-	pushTex:SetTexCoord(0.3, 0.29, 0.3, 0.65, 0.69, 0.29, 0.69, 0.65)
+	local normTex = frame:GetNormalTexture()
+	if normTex then
+		normTex:SetInside()
+		normTex:SetAtlas(rotate)
+		normTex:SetTexCoord(0.05, 1.05, -0.05, 1)
+	end
 
-	highlightTex:SetAllPoints(normTex)
-	highlightTex:SetColorTexture(1, 1, 1, 0.3)
+	local pushTex = frame:GetPushedTexture()
+	if pushTex then
+		pushTex:SetAllPoints(normTex)
+		pushTex:SetAtlas(rotate)
+		pushTex:SetTexCoord(0, 1, -0.1, 0.95)
+	end
 
-	btn.IsSkinned = true
+	local highlightTex = frame:GetHighlightTexture()
+	if highlightTex then
+		highlightTex:SetAllPoints(normTex)
+		highlightTex:SetColorTexture(1, 1, 1, 0.3)
+	end
+
+	frame.IsSkinned = true
 end
 
 do

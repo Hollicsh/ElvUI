@@ -408,13 +408,12 @@ function E:StaticPopup_EscapePressed()
 		if frame:IsShown() and frame.hideOnEscape then
 			local dialog = E.PopupDialogs[frame.which]
 			if dialog then
+				frame:Hide()
+
 				local OnCancel = dialog.OnCancel
-				local noCancelOnEscape = dialog.noCancelOnEscape
-				if OnCancel and not noCancelOnEscape then
+				if OnCancel and not dialog.noCancelOnEscape then
 					OnCancel(frame, frame.data, 'clicked')
 				end
-
-				frame:Hide()
 			else
 				E:StaticPopupSpecial_Hide(frame)
 			end
@@ -462,6 +461,14 @@ end
 function E:StaticPopupSpecial_Hide(frame)
 	frame:Hide()
 	E:StaticPopup_CollapseTable()
+end
+
+function E:StaticPopupSpecial_Toggle(frame)
+	if frame:IsShown() then
+		E:StaticPopupSpecial_Hide(frame)
+	else
+		E:StaticPopupSpecial_Show(frame)
+	end
 end
 
 --Used to figure out if we can resize a frame
@@ -772,6 +779,26 @@ function E:StaticPopup_OnEvent()
 	E:StaticPopup_Resize(self, self.which)
 end
 
+function E:StaticPopup_HideExclusive()
+	for _, frame in pairs(E.StaticPopup_DisplayedFrames) do
+		if frame:IsShown() and frame.exclusive then
+			local dialog = E.PopupDialogs[frame.which]
+			if dialog then
+				frame:Hide()
+
+				local OnCancel = dialog.OnCancel
+				if OnCancel then
+					OnCancel(frame, frame.data, 'override')
+				end
+			else
+				E:StaticPopupSpecial_Hide(frame)
+			end
+
+			break
+		end
+	end
+end
+
 local tempButtonLocs = {}	--So we don't make a new table each time.
 function E:StaticPopup_Show(which, text_arg1, text_arg2, data, insertedFrame)
 	local info = E.PopupDialogs[which]
@@ -791,6 +818,10 @@ function E:StaticPopup_Show(which, text_arg1, text_arg2, data, insertedFrame)
 		end
 
 		return
+	end
+
+	if info.exclusive then
+		E:StaticPopup_HideExclusive()
 	end
 
 	if info.cancels then
@@ -1357,13 +1388,5 @@ function E:Contruct_StaticPopups()
 				popup.itemFrameNameFrame:Kill()
 			end
 		end
-	end
-
-	if _G.StaticPopup_SetUpPosition then
-		E:SecureHook('StaticPopup_SetUpPosition')
-	end
-
-	if _G.StaticPopup_CollapseTable then
-		E:SecureHook('StaticPopup_CollapseTable')
 	end
 end
