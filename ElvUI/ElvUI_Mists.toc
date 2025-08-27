@@ -1,5 +1,7 @@
 ## Title: |cff1784d1ElvUI|r |cfd9b9b9bMists|r
+## Title-ruRU: |cff1784d1ElvUI|r |cfd9b9b9bПандария (5.5.0)|r
 ## Notes: User Interface Replacement
+## Notes-ruRU: Полная замена интерфейса
 ## Author: Elv, Simpy
 ## Version: @project-version@
 ## SavedVariables: ElvDB, ElvPrivateDB
