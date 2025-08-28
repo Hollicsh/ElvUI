@@ -372,17 +372,23 @@ function B:Tooltip_Show()
 	GameTooltip:Show()
 end
 
-function B:DisableFrame(frame)
-	frame:SetScript('OnShow', nil)
-	frame:SetScript('OnHide', nil)
-	frame:UnregisterAllEvents()
-	frame:ClearAllPoints()
+do
+	local function GiveZero() return 0 end
+	function B:DisableFrame(frame, noRight)
+		frame:SetScript('OnShow', nil)
+		frame:SetScript('OnHide', nil)
+		frame:UnregisterAllEvents()
+		frame:ClearAllPoints()
 
-	hooksecurefunc(frame, 'SetPoint', frame.ClearAllPoints)
+		-- bug with GetRight in GetContainerScale from UpdateContainerFrameAnchors because it has no points now
+		frame.GetRight = (noRight and GiveZero) or nil
+
+		hooksecurefunc(frame, 'SetPoint', frame.ClearAllPoints)
+	end
 end
 
 function B:DisableBlizzard()
-	B:DisableFrame(_G.BankFrame)
+	B:DisableFrame(_G.BankFrame, true)
 
 	for i = 1, NUM_CONTAINER_FRAMES do
 		B:DisableFrame(_G['ContainerFrame'..i])
@@ -1755,10 +1761,6 @@ function B:ConstructCoverButton(cover, name, text, template)
 	return button
 end
 
-function B:ClickSound()
-	PlaySound(IG_MAINMENU_OPTION)
-end
-
 function B:GetPurchaseTabButton()
 	local panel = _G.BankPanel
 	local prompt = panel and panel.PurchasePrompt
@@ -2835,6 +2837,22 @@ function B:ClearListeners(frame)
 	end
 end
 
+function B:OpenSound()
+	PlaySound(IG_BACKPACK_OPEN)
+end
+
+function B:CloseSound()
+	PlaySound(IG_BACKPACK_CLOSE)
+end
+
+function B:ClickSound()
+	PlaySound(IG_MAINMENU_OPTION)
+end
+
+function B:SelectSound()
+	PlaySound(IG_CHARACTER_INFO_TAB)
+end
+
 function B:OpenBags()
 	if B.BagFrame:IsShown() then return end
 
@@ -2849,19 +2867,19 @@ function B:OpenBags()
 		B:UpdateTokensIfVisible()
 	end
 
-	PlaySound(IG_BACKPACK_OPEN)
+	B:OpenSound()
 
 	TT:GameTooltip_SetDefaultAnchor(GameTooltip)
 end
 
 function B:CloseBags()
-	local bag, bank = B.BagFrame:IsShown(), B.BankFrame:IsShown()
-	if bag or bank then
-		if bag then B.BagFrame:Hide() end
-		if bank then B.BankFrame:Hide() end
-
-		PlaySound(IG_BACKPACK_CLOSE)
+	if not B.BagFrame:IsShown() then
+		return true -- for when the bank closes
 	end
+
+	B.BagFrame:Hide()
+
+	B:CloseSound()
 
 	TT:GameTooltip_SetDefaultAnchor(GameTooltip)
 end
@@ -2938,8 +2956,7 @@ end
 function B:SelectBankTab(f, bagID)
 	if B.BankTab == bagID then return end
 
-	PlaySound(IG_CHARACTER_INFO_TAB)
-
+	B:SelectSound()
 	B:ShowBankTab(f, bagID)
 	B:SetBankTabs(f)
 end
@@ -3171,8 +3188,8 @@ function B:OpenBank()
 		end
 	end
 
-	if B.db.autoToggle.bank then
-		B:OpenBags()
+	if B.db.autoToggle.bank and not B.BagFrame:IsShown() then
+		_G.ToggleAllBags()
 	end
 end
 
@@ -3185,7 +3202,13 @@ function B:CloseBank()
 		purcahseTab:SetAttribute('overrideBankType', nil)
 	end
 
-	B:CloseBags()
+	if B.BankFrame:IsShown() then
+		B.BankFrame:Hide()
+	end
+
+	if B:CloseBags() then
+		B:CloseSound() -- the bags werent open but we should play the sound
+	end
 end
 
 function B:GetInitialContainerFrameOffsetX()
