@@ -480,14 +480,19 @@ function E:SetAnniversaryLayout()
 	E.db.datatexts.font = 'Expressway'
 	E.db.datatexts.fontSize = 11
 	E.db.datatexts.noCombatHover = true
-	E.db.datatexts.panels.LeftChatDataPanel = { 'Friends', 'Guild', E.Retail and 'QuickJoin' or 'Time' }
+	E.db.datatexts.panels.LeftChatDataPanel[1] = 'Friends'
+	E.db.datatexts.panels.LeftChatDataPanel[2] = 'Guild'
+	E.db.datatexts.panels.LeftChatDataPanel[3] = E.Retail and 'QuickJoin' or 'Time'
 	E.db.datatexts.panels.LeftChatDataPanel.battleground = false
-	E.db.datatexts.panels.MinimapPanel = { 'DurabilityItemLevel', 'Gold' }
+	E.db.datatexts.panels.MinimapPanel[1] = 'DurabilityItemLevel'
+	E.db.datatexts.panels.MinimapPanel[2] = 'Gold'
 	E.db.datatexts.panels.MinimapPanel.enable = false
 	E.db.datatexts.panels.MinimapPanel.panelTransparency = true
 	E.db.datatexts.panels.RightChatDataPanel.backdrop = false
 	E.db.datatexts.panels.RightChatDataPanel.battleground = false
-	E.db.datatexts.panels.RightChatDataPanel = { "", "", "" }
+	E.db.datatexts.panels.RightChatDataPanel[1] = ''
+	E.db.datatexts.panels.RightChatDataPanel[2] = ''
+	E.db.datatexts.panels.RightChatDataPanel[3] = ''
 	E.db.datatexts.wordWrap = true
 	E.db.general.addonCompartment.hide = true
 	E.db.general.altPowerBar.font = 'Expressway'
@@ -697,6 +702,7 @@ function E:SetAnniversaryLayout()
 	E.db.unitframe.units.arena.health.attachTextTo = 'InfoPanel'
 	E.db.unitframe.units.arena.health.position = 'RIGHT'
 	E.db.unitframe.units.arena.health.text_format = E.Classic and '[healthcolor][health:percent]' or '[healthcolor][health:percent-with-absorbs]'
+	E.db.unitframe.units.arena.health.xOffset = -2
 	E.db.unitframe.units.arena.height = 27
 	E.db.unitframe.units.arena.infoPanel.enable = true
 	E.db.unitframe.units.arena.infoPanel.transparent = true
@@ -740,6 +746,7 @@ function E:SetAnniversaryLayout()
 	E.db.unitframe.units.boss.health.attachTextTo = 'InfoPanel'
 	E.db.unitframe.units.boss.health.position = 'RIGHT'
 	E.db.unitframe.units.boss.health.text_format = E.Classic and '[healthcolor][health:percent]' or '[healthcolor][health:percent-with-absorbs]'
+	E.db.unitframe.units.boss.health.xOffset = -2
 	E.db.unitframe.units.boss.height = 27
 	E.db.unitframe.units.boss.infoPanel.enable = true
 	E.db.unitframe.units.boss.infoPanel.height = 17
@@ -866,6 +873,7 @@ function E:SetAnniversaryLayout()
 	E.db.unitframe.units.raid1.verticalSpacing = 4
 	E.db.unitframe.units.raid1.visibility = '[@raid6,exists] show;hide'
 	E.db.unitframe.units.raid1.width = 83
+	E.db.unitframe.units.raid1.health.text_format = E.Classic and '[healthcolor][perhp]' or '[healthcolor][health:deficit-percent-absorbs]'
 	E.db.unitframe.units.raid2.enable = false
 	E.db.unitframe.units.raid3.enable = false
 	E.db.unitframe.units.target.aurabar.height = 16
