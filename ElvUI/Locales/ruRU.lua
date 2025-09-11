@@ -3,6 +3,7 @@ local E = unpack(ElvUI)
 local L = E.Libs.ACL:NewLocale('ElvUI', 'ruRU')
 
 --- Missed phrases ---
+L["Anniversary"] = "Годовщина"
 L["Debuffs that are some form of CC. This can be stuns, roots, slows, etc."] = "Дебаффы, являющиеся формой контроля. Это могут быть оглушения, обездвиживания, замедления и т.д."
 L["Immunity buffs like Bubble and Ice Block, but also most major defensive class cooldowns."] = "Баффы иммунитета, такие как 'Пузырь' и 'Ледяная глыба', а также большинство основных защитных способностей класса."
 L["Auras you don't want to see on your frames."] = "Ауры, которые Вы не хотите видеть на своих фреймах."
