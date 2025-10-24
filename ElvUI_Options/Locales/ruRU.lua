@@ -29,6 +29,8 @@ L["TOOLTIP"] = "Подсказка"
 ----------------------------------
 
 ------------  Missed phrases  ------------
+L["Recent Ally Icon"] = "Значок недавнего союзника"
+L["Display Recent Ally icon after names in chat (excludes whispers and emotes)."] = "Отображать значок недавнего союзника после имен в чате (исключая шепот и эмоции)"
 L["Remix"] = "Ремикс"
 L["Are you sure you want to reset all the settings on this profile?"] = "Вы уверены, что хотите сбросить все настройки этого профиля?"
 L["Anchor to Bags"] = "Крепление к сумкам"
