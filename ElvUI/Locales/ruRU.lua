@@ -4,9 +4,9 @@ local L = E.Libs.ACL:NewLocale('ElvUI', 'ruRU')
 
 L[" |cff00ff00bound to |r"] = " |cff00ff00назначено для |r"
 L["%s frame has a conflicting anchor point. Forcing the Buffs to be attached to the main unitframe."] = "Фрейм %s содержит конфликтующие точки крепления. Баффы будут принудительно закреплены на самом фрейме."
-L["%s is attempting to share the Global Profile with you. Would you like to accept the request?"] = "%s пытается предоставить Вам доступ к глобальному профилю. Вы хотели бы принять запрос?"
-L["%s is attempting to share the Private Profile (%s) with you. Would you like to accept the request?"] = "%s пытается предоставить Вам доступ к закрытому профилю (%s). Вы хотели бы принять запрос?"
-L["%s is attempting to share the Profile (%s) with you. Would you like to accept the request?"] = "%s хочет передать Вам профиль (%s). Желаете ли Вы принять его?"
+L["%s is attempting to share the Global Profile with you. Would you like to accept the request?"] = "%s пытается поделиться с Вами глобальным профилем. Вы хотели бы принять запрос?"
+L["%s is attempting to share the Private Profile (%s) with you. Would you like to accept the request?"] = "%s пытается поделиться с Вами приватным профилем (%s). Вы хотели бы принять запрос?"
+L["%s is attempting to share the Profile (%s) with you. Would you like to accept the request?"] = "%s пытается поделиться с Вами профилем (%s). Желаете ли Вы принять его?"
 L["(Ctrl & Shift Click) Toggle CPU Profiling"] = "(Ctrl + Shift + ЛКМ) Вкл./выкл. профилирование ЦП"
 L["(Hold Shift) Memory Usage"] = "(Зажать Shift) Использование памяти"
 L["(Shift Click) Collect Garbage"] = "(Shift + ЛКМ) Очистить мусор"
