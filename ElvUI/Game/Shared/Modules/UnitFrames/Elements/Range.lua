@@ -114,15 +114,12 @@ function UF:UpdateRange(unit)
 	local element = self.Fader
 	if not element then return end
 
-	if not unit then
-		unit = self.unit
-	end
-
-	if self.forceInRange or unit == 'player' then
+	local exists = E:UnitExists(unit)
+	if self.forceInRange or (exists and unit == 'player') then
 		element.RangeAlpha = element.MaxAlpha
 	elseif self.forceNotInRange then
 		element.RangeAlpha = element.MinAlpha
-	elseif E:UnitExists(unit) then
+	elseif exists then
 		if UnitIsDeadOrGhost(unit) then
 			element.RangeAlpha = UF:UnitInSpellsRange(unit, 3) == true and element.MaxAlpha or element.MinAlpha
 		elseif UnitCanAttack('player', unit) then
