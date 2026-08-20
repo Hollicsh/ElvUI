@@ -2,16 +2,16 @@ local E, L, V, P, G = unpack(ElvUI)
 local S = E:GetModule('Skins')
 
 local _G = _G
-local gsub, next, strmatch, strfind = gsub, next, strmatch, strfind
-local pairs, ipairs, unpack = pairs, ipairs, unpack
+local unpack, gsub = unpack, gsub
+local pairs, next, strmatch = pairs, next, strmatch
+local ipairs, strfind = ipairs, strfind
+local hooksecurefunc = hooksecurefunc
 
 local GetMoney = GetMoney
 local GetQuestID = GetQuestID
 local CreateFrame = CreateFrame
 local GetNumQuestLeaderBoards = GetNumQuestLeaderBoards
-local GetQuestBackgroundMaterial = GetQuestBackgroundMaterial
 local GetQuestLogLeaderBoard = GetQuestLogLeaderBoard
-local hooksecurefunc = hooksecurefunc
 
 local C_QuestLog_GetRequiredMoney = C_QuestLog.GetRequiredMoney
 local C_QuestLog_GetNextWaypointText = C_QuestLog.GetNextWaypointText
@@ -124,6 +124,12 @@ function S:QuestInfo_ShowObjectives()
 			end
 		end
 	end
+end
+
+local function ShowQuestPortrait(frame, _, _, _, _, _, x, y)
+	local mapFrame = _G.QuestMapFrame:GetParent()
+	_G.QuestModelScene:ClearAllPoints()
+	_G.QuestModelScene:Point('TOPLEFT', frame, 'TOPRIGHT', (x or 0) + (frame == mapFrame and 11 or 6), y or 0)
 end
 
 function S:QuestInfoItem_OnClick() -- self is not S
@@ -319,22 +325,31 @@ function S:BlizzardQuestFrames()
 	--Quest Frame
 	local QuestFrame = _G.QuestFrame
 	S:HandlePortraitFrame(QuestFrame)
-	_G.QuestFrameDetailPanel:StripTextures(nil, E.private.skins.parchmentRemoverEnable)
-	_G.QuestDetailScrollFrame:StripTextures(nil, E.private.skins.parchmentRemoverEnable)
-	_G.QuestProgressScrollFrame:StripTextures(nil, E.private.skins.parchmentRemoverEnable)
-	_G.QuestGreetingScrollFrame:StripTextures(nil, E.private.skins.parchmentRemoverEnable)
-	_G.QuestRewardScrollFrame:StripTextures(nil, E.private.skins.parchmentRemoverEnable)
-	_G.QuestLogPopupDetailFrameScrollFrame:StripTextures(nil, E.private.skins.parchmentRemoverEnable)
+
+	S:HandleButton(_G.QuestFrameAcceptButton, true)
+	S:HandleButton(_G.QuestFrameCompleteButton, true)
+	S:HandleButton(_G.QuestFrameCompleteQuestButton, true)
+	S:HandleButton(_G.QuestFrameDeclineButton, true)
+	S:HandleButton(_G.QuestFrameGoodbyeButton, true)
+	S:HandleButton(_G.QuestFrameGreetingGoodbyeButton, true)
+
+	_G.QuestGreetingFrameHorizontalBreak:Kill()
 
 	_G.QuestDetailScrollChildFrame:StripTextures(nil, true)
-	_G.QuestRewardScrollChildFrame:StripTextures(nil, true)
+	_G.QuestDetailScrollFrame:StripTextures(nil, true)
+	_G.QuestFrameDetailPanel:StripTextures(nil, true)
+	_G.QuestFrameGreetingPanel:StripTextures(nil, true)
 	_G.QuestFrameProgressPanel:StripTextures(nil, true)
 	_G.QuestFrameRewardPanel:StripTextures(nil, true)
-
-	_G.QuestRewardScrollFrame:Height(_G.QuestRewardScrollFrame:GetHeight() - 2)
+	_G.QuestGreetingScrollFrame:StripTextures(nil, true)
+	_G.QuestLogPopupDetailFrameScrollFrame:StripTextures(nil, true)
+	_G.QuestProgressScrollFrame:StripTextures(nil, true)
+	_G.QuestRewardScrollChildFrame:StripTextures(nil, true)
+	_G.QuestRewardScrollFrame:StripTextures(nil, true)
 
 	_G.QuestFrameGreetingPanel:HookScript('OnShow', GreetingPanel_OnShow) -- called when actually shown
 	hooksecurefunc('QuestFrameGreetingPanel_OnShow', GreetingPanel_OnShow) -- called through QUEST_LOG_UPDATE
+	hooksecurefunc('QuestFrame_ShowQuestPortrait', ShowQuestPortrait)
 
 	if E.private.skins.parchmentRemoverEnable then
 		hooksecurefunc('QuestFrameProgressItems_Update', S.QuestFrameProgressItems_Update)
@@ -348,16 +363,6 @@ function S:BlizzardQuestFrames()
 		_G.QuestGreetingScrollFrame:SetTemplate('NoBackdrop')
 		_G.QuestRewardScrollFrame:SetTemplate('NoBackdrop')
 		_G.QuestLogPopupDetailFrameScrollFrame:SetTemplate('NoBackdrop')
-
-		_G.QuestFrameDetailPanel.SealMaterialBG:SetAlpha(0)
-		_G.QuestFrameRewardPanel.SealMaterialBG:SetAlpha(0)
-		_G.QuestFrameProgressPanel.SealMaterialBG:SetAlpha(0)
-		_G.QuestFrameGreetingPanel.SealMaterialBG:SetAlpha(0)
-
-		_G.QuestFrameDetailPanel.Bg:SetAlpha(0)
-		_G.QuestFrameRewardPanel.Bg:SetAlpha(0)
-		_G.QuestFrameProgressPanel.Bg:SetAlpha(0)
-		_G.QuestFrameGreetingPanel.Bg:SetAlpha(0)
 
 		_G.QuestModelScene.ModelTextFrame:StripTextures()
 		_G.QuestNPCModelText:SetTextColor(1, 1, 1)
@@ -378,6 +383,11 @@ function S:BlizzardQuestFrames()
 		_G.QuestFrameProgressPanel.Bg:SetInside(_G.QuestProgressScrollFrame)
 		_G.QuestFrameGreetingPanel.Bg:SetInside(_G.QuestGreetingScrollFrame)
 
+		_G.QuestFrameDetailPanel.Bg:SetAlpha(1)
+		_G.QuestFrameRewardPanel.Bg:SetAlpha(1)
+		_G.QuestFrameProgressPanel.Bg:SetAlpha(1)
+		_G.QuestFrameGreetingPanel.Bg:SetAlpha(1)
+
 		_G.QuestDetailScrollFrame.Center:SetAlpha(0)
 		_G.QuestRewardScrollFrame.Center:SetAlpha(0)
 		_G.QuestProgressScrollFrame.Center:SetAlpha(0)
@@ -385,16 +395,6 @@ function S:BlizzardQuestFrames()
 
 		S:HandleBlizzardRegions(_G.QuestModelScene.ModelTextFrame)
 	end
-
-	_G.QuestFrameGreetingPanel:StripTextures(true)
-	S:HandleButton(_G.QuestFrameGreetingGoodbyeButton)
-	_G.QuestGreetingFrameHorizontalBreak:Kill()
-
-	S:HandleButton(_G.QuestFrameAcceptButton, true)
-	S:HandleButton(_G.QuestFrameDeclineButton, true)
-	S:HandleButton(_G.QuestFrameCompleteButton, true)
-	S:HandleButton(_G.QuestFrameGoodbyeButton, true)
-	S:HandleButton(_G.QuestFrameCompleteQuestButton, true)
 
 	for i = 1, 6 do
 		local button = _G['QuestProgressItem'..i]
@@ -438,27 +438,22 @@ function S:BlizzardQuestFrames()
 
 	S:HandleTrimScrollBar(_G.QuestNPCModelTextScrollFrame.ScrollBar)
 
-	hooksecurefunc('QuestFrame_ShowQuestPortrait', function(frame, _, _, _, _, _, x, y)
-		local mapFrame = _G.QuestMapFrame:GetParent()
-
-		_G.QuestModelScene:ClearAllPoints()
-		_G.QuestModelScene:Point('TOPLEFT', frame, 'TOPRIGHT', (x or 0) + (frame == mapFrame and 11 or 6), y or 0)
-	end)
-
 	local QuestLogPopupDetailFrame = _G.QuestLogPopupDetailFrame
-	S:HandlePortraitFrame(QuestLogPopupDetailFrame)
-
 	S:HandleButton(_G.QuestLogPopupDetailFrameAbandonButton)
 	S:HandleButton(_G.QuestLogPopupDetailFrameShareButton)
 	S:HandleButton(_G.QuestLogPopupDetailFrameTrackButton)
+	S:HandlePortraitFrame(QuestLogPopupDetailFrame)
 
-	QuestLogPopupDetailFrame:SetTemplate('Transparent')
+	local showMapButton = QuestLogPopupDetailFrame.ShowMapButton
+	if showMapButton then
+		S:HandleButton(showMapButton)
 
-	QuestLogPopupDetailFrame.ShowMapButton:StripTextures()
-	S:HandleButton(QuestLogPopupDetailFrame.ShowMapButton)
-	QuestLogPopupDetailFrame.ShowMapButton.Text:ClearAllPoints()
-	QuestLogPopupDetailFrame.ShowMapButton.Text:Point('CENTER')
-	QuestLogPopupDetailFrame.ShowMapButton:Size(QuestLogPopupDetailFrame.ShowMapButton:GetWidth() - 30, QuestLogPopupDetailFrame.ShowMapButton:GetHeight(), - 40)
+		local width, height = showMapButton:GetSize()
+		showMapButton:StripTextures()
+		showMapButton:Size(width - 30, height)
+		showMapButton.Text:ClearAllPoints()
+		showMapButton.Text:Point('CENTER')
+	end
 end
 
 S:AddCallback('BlizzardQuestFrames')
