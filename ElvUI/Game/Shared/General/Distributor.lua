@@ -535,11 +535,11 @@ function D:Decode(dataString)
 			return
 		end
 
-		profileData = format('%s%s', profileData, '}') --Add back the missing '}'
-		profileData = gsub(profileData, '\124\124', '\124') --Remove escape pipe characters
+		local profileText = gsub(profileData, '\124\124', '\124') -- Remove escape pipe characters
+		local profileFunc = format('%s %s', 'return', profileText)
 
 		local success
-		local profileTable = loadstring(format('%s %s', 'return', profileData))
+		local profileTable = loadstring(profileFunc)
 		if profileTable then
 			success, profileData = pcall(profileTable)
 		end
