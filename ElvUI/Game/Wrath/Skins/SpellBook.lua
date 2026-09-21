@@ -3,12 +3,11 @@ local S = E:GetModule('Skins')
 
 local _G = _G
 local next = next
-
 local CreateFrame = CreateFrame
 local hooksecurefunc = hooksecurefunc
 
-local function SpellHighlightSetTexture(texture, tex)
-	if tex == [[Interface\Buttons\ButtonHilight-Square]] or tex == [[Interface\Buttons\UI-PassiveHighlight]] then
+local function SpellHighlightSetTexture(texture, path)
+	if path == [[Interface\Buttons\ButtonHilight-Square]] or path == [[Interface\Buttons\UI-PassiveHighlight]] then
 		texture:SetColorTexture(1, 1, 1, 0.3)
 	end
 end
@@ -44,10 +43,6 @@ function S:SpellBookFrame()
 
 	_G.SpellBookTitleText:Point('TOP', -10, -17)
 	_G.SpellBookTitleText:SetTextColor(1, 1, 1)
-
-	_G.SpellBookSpellIconsFrame:StripTextures(true)
-	_G.SpellBookSideTabsFrame:StripTextures(true)
-	_G.SpellBookPageNavigationFrame:StripTextures(true)
 
 	_G.SpellBookPageText:SetTextColor(1, 1, 1)
 	_G.SpellBookPageText:Point('BOTTOM', -10, 87)

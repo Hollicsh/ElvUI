@@ -11,9 +11,9 @@ local GetPetHappiness = GetPetHappiness
 local GetInventoryItemQuality = GetInventoryItemQuality
 
 local HONOR_CURRENCY = Constants.CurrencyConsts.CLASSIC_HONOR_CURRENCY_ID
+local CHARACTERFRAME_SUBFRAMES = CHARACTERFRAME_SUBFRAMES
 local NUM_FACTIONS_DISPLAYED = NUM_FACTIONS_DISPLAYED
 local MAX_ARENA_TEAMS = MAX_ARENA_TEAMS
-local CHARACTERFRAME_SUBFRAMES = CHARACTERFRAME_SUBFRAMES
 
 local ResistanceCoords = {
 	{ 0.21875, 0.8125, 0.25, 0.32421875 },		--Arcane
@@ -133,15 +133,16 @@ local function HandleHappiness(frame)
 	end
 end
 
-local function HandleResistanceFrame(frameName)
+local function HandleResistanceFrame(name)
 	for i = 1, 5 do
-		local frame, icon, text = _G[frameName..i], _G[frameName..i]:GetRegions()
+		local frame = _G[name..i]
+		local icon, text = frame:GetRegions()
 		frame:Size(24)
 		frame:SetTemplate()
 
 		if i ~= 1 then
 			frame:ClearAllPoints()
-			frame:Point('TOP', _G[frameName..i - 1], 'BOTTOM', 0, -1)
+			frame:Point('TOP', _G[name..(i - 1)], 'BOTTOM', 0, -1)
 		end
 
 		icon:SetInside()
@@ -283,8 +284,8 @@ function S:CharacterFrame()
 	_G.TokenFrame:StripTextures()
 	S:HandleButton(_G.TokenFrameCancelButton)
 
-	local _, _, _, closeButton = _G.TokenFrame:GetChildren() -- Container, MoneyFrame, CancelButton, unnamed UIPanelCloseButton
-	closeButton:Kill() -- sits on CharacterFrameCloseButton
+	local _, _, _, closeFrameButton = _G.TokenFrame:GetChildren() -- Container, MoneyFrame, CancelButton, unnamed UIPanelCloseButton
+	closeFrameButton:Kill() -- sits on CharacterFrameCloseButton
 
 	S:HandleScrollBar(_G.TokenFrameContainerScrollBar)
 	S:HandleCloseButton(_G.TokenFramePopupCloseButton, _G.TokenFramePopup)
