@@ -20,6 +20,10 @@ local function UpdateKeybindButtons(self)
 			S:HandleButton(panel.Button2)
 			panel.IsSkinned = true
 		end
+
+		if panel.CustomButton then -- push to talk
+			S:HandleButton(panel.CustomButton)
+		end
 	end
 end
 
@@ -224,7 +228,7 @@ local function SettingsListScrollUpdate(frame)
 	frame:ForEachFrame(SettingsListScrollUpdateChild)
 end
 
-function S:SettingsPanel()
+function S:Blizzard_Settings_Shared()
 	if not (E.private.skins.blizzard.enable and E.private.skins.blizzard.blizzardOptions) then return end
 
 	local SettingsPanel = _G.SettingsPanel
@@ -255,4 +259,4 @@ function S:SettingsPanel()
 	hooksecurefunc(SettingsPanel.Container.SettingsList.ScrollBox, 'Update', SettingsListScrollUpdate)
 end
 
-S:AddCallback('SettingsPanel')
+S:AddCallbackForAddon('Blizzard_Settings_Shared')

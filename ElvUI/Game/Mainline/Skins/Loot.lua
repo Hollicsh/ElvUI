@@ -37,13 +37,14 @@ end
 local function LootFrameUpdateChild(button)
 	local item = button.Item
 	if item then
-		if not item.backdrop then
+		if not item.icon.backdrop then
 			item:StyleButton()
 			item.icon:SetInside(item)
 
 			S:HandleIcon(item.icon, true)
 		end
 
+		item.NormalTexture:SetAlpha(0)
 		item.IconBorder:SetAlpha(0)
 
 		-- icon border isn't updated for white/grey so pull color from the name
@@ -240,4 +241,4 @@ function S:LootFrame()
 	hooksecurefunc(BonusSpecIcon, 'Show', SpecIconShow)
 end
 
-S:AddCallback('LootFrame')
+S:AddCallbackForAddon('Blizzard_UIPanels_Game', 'LootFrame')
